@@ -331,14 +331,29 @@ if not summary.empty:
     chart_data = summary.copy().sort_values("Success %", ascending=False)
     chart_data["Success % Int"] = chart_data["Success %"].astype(int)
 
-    fig = px.bar(chart_data, x=group_by, y="Success % Int", text="Success % Int",
-                 color="Success % Int", color_continuous_scale="Viridis",
-                 title=f"{group_by}-wise Success %")
-    fig.update_traces(texttemplate='%{text}%', textposition="outside")
-    fig.update_layout(yaxis_title="Success %", xaxis_title=group_by)
+    fig = px.bar(
+        chart_data,
+        x=group_by,
+        y="Success % Int",
+        text="Success % Int",
+        color="Success % Int",
+        color_continuous_scale="Viridis",
+        title=f"{group_by}-wise Success %"
+    )
 
+    # Make % label bold and inside top center
+    fig.update_traces(
+        texttemplate="<b>%{text}%</b>",
+        textposition="inside",
+        insidetextanchor="end"  # Align top-center
+    )
+
+    fig.update_layout(
+        yaxis_title="Success %",
+        xaxis_title=group_by,
+        uniformtext_minsize=8,
+        uniformtext_mode='hide'
+    )
 
     st.plotly_chart(fig, use_container_width=True)
-
-
 
