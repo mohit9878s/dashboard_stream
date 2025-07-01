@@ -1,8 +1,5 @@
 streamlit
 pandas
-numpy
 plotly
-streamlit-autorefresh
 openpyxl
-streamlit_autorefresh
-datetimw
+streamlit-autorefresh
