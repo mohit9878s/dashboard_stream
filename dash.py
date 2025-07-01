@@ -54,7 +54,7 @@ st.markdown(f"""
 @st.cache_data(ttl=300)
 def load_data():
     try:
-        df = pd.read_csv(r"Summary for Dashboard.csv")
+        df = pd.read_csv("Summary for Dashboard.csv")
         required = ["State", "Vendor Name", "Type of Communication", "Cohort", "Total Phone Numbers", "Total Success"]
         if not all(col in df.columns for col in required):
             st.error("Excel file missing required columns.")
