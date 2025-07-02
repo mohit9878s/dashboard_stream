@@ -119,7 +119,7 @@ for key in ["state_filter", "vendor_filter", "cohort_filter"]:
 
 ### Sidebar Filters
 with st.sidebar:
-       st.caption(f"⏳ Auto-updated every 5 minutes\n🕒 Last Updated: {india_time}")
+    st.caption(f"⏳ Auto-updated every 5 minutes\n🕒 Last Updated: {india_time}")
     with st.expander("🎛️ Apply Filters", expanded=True):
         if st.button("❌ Clear Filters"):
             st.session_state.state_filter = []
