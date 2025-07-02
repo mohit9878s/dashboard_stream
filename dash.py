@@ -4,6 +4,8 @@ import plotly.express as px
 import base64
 from streamlit_autorefresh import st_autorefresh
 from datetime import datetime
+import pytz
+
 
 # Image to base64
 def image_to_base64(img_path):
@@ -14,6 +16,8 @@ def image_to_base64(img_path):
 jarvis_path = r"jarvis_Logo_.webp"
 jarvis_base64 = image_to_base64(jarvis_path)
 
+
+india_time = datetime.now(pytz.timezone('Asia/Kolkata')).strftime('%Y-%m-%d %H:%M:%S')
 
 ### # ⏱️ Auto-refresh every 60 seconds
 st_autorefresh(interval= 5 * 60 * 1000, key="datarefresh")  # 60 sec = 60000 ms
@@ -111,7 +115,7 @@ for key in ["state_filter", "vendor_filter", "cohort_filter"]:
 
 ### Sidebar Filters
 with st.sidebar:
-    st.caption(f"⏳Auto-updated every 5 min \n Last Updated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    st.caption(f"⏳ Auto-updated every 5 minutes\n🕒 Last Updated: {india_time}")
     with st.expander("🎛️ Apply Filters", expanded=True):
         if st.button("❌ Clear Filters"):
             st.session_state.state_filter = []
