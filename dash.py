@@ -38,10 +38,17 @@ st.markdown(f"""
 
 
 with st.sidebar:
-    st.subheader('Quickly Update')
-    if st.button("🔁 Refresh Now"):
+    st.markdown("#### 📊 Dashboard Update")
+    if st.button("🔄 Click Refresh", use_container_width=True):
         st.cache_data.clear()
         st.rerun()
+
+
+# with st.sidebar:
+  #  st.subheader('Quickly Update')
+   # if st.button("🔁 Refresh Now"):
+    #    st.cache_data.clear()
+     #   st.rerun()
     # st.caption(f"⏳ Auto-update every 5 min")   ##\n🕒 Last Updated: {india_time}")
 
 # Google Sheet URL
