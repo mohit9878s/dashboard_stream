@@ -63,7 +63,7 @@ missing_columns = [col for col in required_columns if col not in df.columns]
 if missing_columns:
     st.warning(f"⚠️ Some columns are missing in the sheet: {', '.join(missing_columns)}. The dashboard will show partial data.")
 
-### Communication Type Filter
+# Communication Type Filter
 with st.sidebar:
     if "Type of Communication" in df.columns and df["Type of Communication"].dropna().nunique() > 0:
         st.markdown("### 📨 Type of Communication")
@@ -74,6 +74,24 @@ with st.sidebar:
         comm_options = []
         comm_selected = []
 
+# Comment mapping only for OBD
+comment_data = [
+    (0, 10, "Campaigns not initiated properly"),
+    (11, 20, "Run on only 30 to 40% of the phone numbers"),
+    (21, 30, "100% of DND scrubbing"),
+    (31, 40, "Only 1 retry"),
+    (41, 60, "Run perfectly with 3 retries"),
+    (61, 70, "up to 5% of fraud cahnce"),
+    (71, 80, "Up to 10% fraud chance"),
+    (81, 90, "Only the Success few Campaign Reports"),
+    (91, 100, "Only the Success Campaign Reports")
+]
+
+def get_comment(success_pct):
+    for lower, upper, comment in comment_data:
+        if lower <= round(success_pct) <= upper:
+            return comment
+    return "No Comment Available"
 
 # Session state filters
 for key in ["state_filter", "vendor_filter", "cohort_filter"]:
@@ -100,10 +118,8 @@ with st.sidebar:
         cohort = st.multiselect("🎯 Cohort", cohort_options, default=valid_cohort_default, key="cohort_filter")
 
     st.markdown("---")
-    # st.subheader("🧾 Number Format View Options")
     compact_style = "comma"
-    # ft=st.subheader("Show Numbering Format As")
-    format_option = st.pills("Show Numbering Format As", ["Decimal Format ( e.g. 10.2  K, L, Cr )"])
+    format_option = st.pills("Show Numbering Format As", ["Decimal Format ( e.g. 1.1 : K, L, Cr )"])
     if format_option:
         compact_style = "compact"
 
@@ -156,6 +172,9 @@ if not filtered_df.empty and all(col in filtered_df.columns for col in ["Total P
     summary["Success %"] = summary.apply(lambda row: (row["Total Success"] / row["Total Phone Numbers"] * 100)
                                          if row["Total Phone Numbers"] > 0 else 0, axis=1).round(2)
 
+    if len(comm_selected) == 1 and comm_selected[0] == "OBD":
+        summary["Comment"] = summary["Success %"].apply(lambda x: get_comment(x))
+
     total_ph = filtered_df["Total Phone Numbers"].sum()
     total_succ = filtered_df["Total Success"].sum()
     overall_pct = (total_succ / total_ph * 100) if total_ph else 0
@@ -171,7 +190,6 @@ if not filtered_df.empty and all(col in filtered_df.columns for col in ["Total P
         st.markdown("**📈 Overall Success %**")
         st.markdown(f"<h4>{overall_pct:.1f} %</h4>", unsafe_allow_html=True)
 
-
     display_df = summary.copy()
     if compact_style == "compact":
         display_df["Total Phone Numbers"] = summary["Total Phone Numbers"].apply(format_compact_decimal)
@@ -181,6 +199,8 @@ if not filtered_df.empty and all(col in filtered_df.columns for col in ["Total P
         display_df["Total Success"] = summary["Total Success"].apply(format_indian_number)
 
     display_df["Success %"] = summary["Success %"].apply(lambda x: f"{x:.1f} %")
+    if "Comment" in summary.columns:
+        display_df["Comment"] = summary["Comment"]
 
     st.markdown("### 📋 Summary Table")
     display_df.index = range(1, len(display_df) + 1)
