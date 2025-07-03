@@ -74,11 +74,16 @@ if df is None:
     st.stop()
 
 
+#### Auto App refresh every 1 minutes
+#st_autorefresh(interval= 60 * 1000, key="datarefresh")
+
+
 #### Auto App refresh every 5 minutes
 # st_autorefresh(interval=5 * 60 * 1000, key="datarefresh")
 
-#### Auto App refresh every 1 minutes
-st_autorefresh(interval= 60 * 1000, key="datarefresh")
+# Auto App refresh every 3 hours
+st_autorefresh(interval=3 * 60 * 60 * 1000, key="datarefresh")
+
 
 required_columns = [
     "State", "Vendor Name", "Type of Communication",
