@@ -91,7 +91,7 @@ with st.sidebar:
     # st.subheader("🧾 Number Format View Options")
     compact_style = "comma"
     # ft=st.subheader("Show Numbering Format As")
-    format_option = st.pills("Show Numbering Format As", ["Decimal Format ( e.g. 1.1 : K, L, Cr )"])
+    format_option = st.pills("Show Numbering Format As", ["Decimal Format ( e.g. 10.2  K, L, Cr )"])
     if format_option:
         compact_style = "compact"
 
