@@ -98,6 +98,18 @@ for key in ["state_filter", "vendor_filter", "cohort_filter"]:
     if key not in st.session_state:
         st.session_state[key] = []
 
+#with st.sidebar:
+ #   with st.expander("🎛️ Apply Filters", expanded=True):
+  #      if st.button("❌ Clear Filters"):
+   #         st.session_state.state_filter = []
+    #        st.session_state.vendor_filter = []
+     #       st.session_state.cohort_filter = []
+
+      #  state = st.multiselect("📍 State", sorted(df["State"].unique()), default=st.session_state.state_filter, key="state_filter")
+       # vendor = st.multiselect("🏷️ Vendor", sorted(df["Vendor Name"].unique()), default=st.session_state.vendor_filter, key="vendor_filter")
+        #cohort = st.multiselect("🎯 Cohort", sorted(df["Cohort"].unique()), default=st.session_state.cohort_filter, key="cohort_filter")
+
+
 with st.sidebar:
     with st.expander("🎛️ Apply Filters", expanded=True):
         if st.button("❌ Clear Filters"):
@@ -105,10 +117,28 @@ with st.sidebar:
             st.session_state.vendor_filter = []
             st.session_state.cohort_filter = []
 
-        state = st.multiselect("📍 State", sorted(df["State"].unique()), default=st.session_state.state_filter, key="state_filter")
-        vendor = st.multiselect("🏷️ Vendor", sorted(df["Vendor Name"].unique()), default=st.session_state.vendor_filter, key="vendor_filter")
-        cohort = st.multiselect("🎯 Cohort", sorted(df["Cohort"].unique()), default=st.session_state.cohort_filter, key="cohort_filter")
+        # Get unique options
+        state_options = sorted(df["State"].dropna().unique())
+        vendor_options = sorted(df["Vendor Name"].dropna().unique())
+        cohort_options = sorted(df["Cohort"].dropna().unique())
 
+        # Safely filter defaults (must exist in options)
+        valid_state_default = [x for x in st.session_state.state_filter if x in state_options]
+        valid_vendor_default = [x for x in st.session_state.vendor_filter if x in vendor_options]
+        valid_cohort_default = [x for x in st.session_state.cohort_filter if x in cohort_options]
+
+        # Multiselects
+        state = st.multiselect("📍 State", state_options, default=valid_state_default, key="state_filter")
+        vendor = st.multiselect("🏷️ Vendor", vendor_options, default=valid_vendor_default, key="vendor_filter")
+        cohort = st.multiselect("🎯 Cohort", cohort_options, default=valid_cohort_default, key="cohort_filter")
+
+
+
+
+    
+
+
+    
     st.markdown("---")
     st.subheader("🧾 Number Format View Options")
     if "compact_view" not in st.session_state:
