@@ -63,6 +63,18 @@ missing_columns = [col for col in required_columns if col not in df.columns]
 if missing_columns:
     st.warning(f"⚠️ Some columns are missing in the sheet: {', '.join(missing_columns)}. The dashboard will show partial data.")
 
+### Communication Type Filter
+with st.sidebar:
+    if "Type of Communication" in df.columns and df["Type of Communication"].dropna().nunique() > 0:
+        st.markdown("### 📨 Type of Communication")
+        comm_options = sorted(df["Type of Communication"].dropna().unique())
+        select_all = st.checkbox("Select All Communication Types")
+        comm_selected = comm_options if select_all else st.pills("Filter Communication Types", comm_options, selection_mode="multi")
+    else:
+        comm_options = []
+        comm_selected = []
+
+
 # Session state filters
 for key in ["state_filter", "vendor_filter", "cohort_filter"]:
     if key not in st.session_state:
@@ -125,16 +137,6 @@ def format_compact_decimal(n):
     elif n >= 1e3:
         return f"{int(n / 10) / 100:.2f} K"
     return str(n)
-
-# Communication Type Filter
-if "Type of Communication" in df.columns and df["Type of Communication"].dropna().nunique() > 0:
-    st.markdown("### 📨 Type of Communication")
-    comm_options = sorted(df["Type of Communication"].dropna().unique())
-    select_all = st.checkbox("Select All Communication Types")
-    comm_selected = comm_options if select_all else st.pills("Filter Communication Types", comm_options, selection_mode="multi")
-else:
-    comm_options = []
-    comm_selected = []
 
 # Apply Filters
 filtered_df = df.copy()
