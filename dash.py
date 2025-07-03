@@ -36,11 +36,6 @@ st.markdown(f"""
     </div>
 """, unsafe_allow_html=True)
 
-with st.sidebar:
-    st.markdown("#### 📊 Dashboard Update")
-    if st.button("🔄 Click Refresh", use_container_width=True):
-        st.cache_data.clear()
-        st.rerun()
 
 # Google Sheet URL
 sheet_url = "https://docs.google.com/spreadsheets/d/1PAmuXQHqkVE5r0OjMwyvlxDS-O4e8CzBo8auI4uVYCA/edit#gid=1379708796"
@@ -110,6 +105,13 @@ with st.sidebar:
             "Short Format (e.g. 2.57 Cr)",
             "Full Format (e.g. 2,57,08,228 Cr)"
         ], index=0)
+
+with st.sidebar:
+    st.markdown("#### 📊 Dashboard Update")
+    if st.button("🔄 Click Refresh", use_container_width=True):
+        st.cache_data.clear()
+        st.rerun()
+
 
 # Format functions
 def format_indian_number(n):
