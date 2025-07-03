@@ -212,7 +212,7 @@ if not filtered_df.empty and all(col in filtered_df.columns for col in ["Total P
     display_df = summary.sort_values("Total Phone Numbers", ascending=False).copy()
     display_df["Total Phone Numbers"] = summary["Total Phone Numbers"].apply(format_func)
     display_df["Total Success"] = summary["Total Success"].apply(format_func)
-    display_df["Success %"] = summary["Success %"].apply(lambda x: f"{x:.0f} %")
+    display_df["Success %"] = summary["Success %"].apply(lambda x: f"{x:.1f} %")
 
     if len(comm_selected) == 1 and comm_selected[0] == "OBD":
         def get_comment(pct):
@@ -237,30 +237,33 @@ if not filtered_df.empty and all(col in filtered_df.columns for col in ["Total P
     st.dataframe(display_df, use_container_width=True)
 
     # Bar Chart
-    if not summary.empty:
-        chart_data = summary.copy().sort_values("Success %", ascending=False)
-        chart_data["Success % Int"] = chart_data["Success %"].astype(int)
+    chart_data = summary.copy().sort_values("Success %", ascending=False)
+    chart_data["Success % Label"] = chart_data["Success %"].apply(lambda x: f"{x:.1f} %")
 
-        fig = px.bar(
-            chart_data,
-            x=group_by,
-            y="Success % Int",
-            text="Success % Int",
-            color="Success % Int",
-            color_continuous_scale="Viridis",
-            title=f"{group_by}-wise Success %")
+    fig = px.bar(
+        chart_data,
+        x=group_by,
+        y="Success %",
+        text="Success % Label",
+        color="Success %",
+        color_continuous_scale="Viridis",
+        title=f"{group_by}-wise Success %"
+    )
 
-        fig.update_traces(
-            texttemplate="<b>%{text}%</b>",
-            textposition="inside",
-            insidetextanchor="end")
+    fig.update_traces(
+        texttemplate="<b>%{text}</b>",
+        textposition="inside",
+        insidetextanchor="end"
+    )
 
-        fig.update_layout(
-            yaxis_title="Success %",
-            xaxis_title=group_by,
-            uniformtext_minsize=8,
-            uniformtext_mode='hide')
+    fig.update_layout(
+        yaxis_title="Success %",
+        xaxis_title=group_by,
+        uniformtext_minsize=8,
+        uniformtext_mode='hide'
+    )
 
-        st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, use_container_width=True)
+
 else:
     st.info("📌 Not enough data to display summary or metrics.")
