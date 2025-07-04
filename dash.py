@@ -39,7 +39,7 @@ st.markdown(f"""
 # Google Sheet URL
 sheet_url = "https://docs.google.com/spreadsheets/d/1PAmuXQHqkVE5r0OjMwyvlxDS-O4e8CzBo8auI4uVYCA/edit#gid=1379708796"
 
-# Load data from Google Sheets
+# Load data
 @st.cache_data(ttl=60)
 def load_data(sheet_url):
     try:
@@ -57,90 +57,20 @@ if df is None:
 # Auto App refresh every 3 hours
 st_autorefresh(interval=3 * 60 * 60 * 1000, key="datarefresh")
 
-# Check columns and warn if missing
+# Required columns check
 required_columns = ["State", "Vendor Name", "Type of Communication", "Cohort", "Total Phone Numbers", "Total Success"]
 missing_columns = [col for col in required_columns if col not in df.columns]
 if missing_columns:
-    st.warning(f"⚠️ Some columns are missing in the sheet: {', '.join(missing_columns)}. The dashboard will show partial data.")
+    st.warning(f"⚠️ Some columns are missing in the sheet: {', '.join(missing_columns)}.")
 
-# Communication Type Filter
+# Sidebar - Communication Filter
 with st.sidebar:
-    if "Type of Communication" in df.columns and df["Type of Communication"].dropna().nunique() > 0:
-        st.markdown("### 📨 Type of Communication")
-        comm_options = sorted(df["Type of Communication"].dropna().unique())
-        select_all = st.checkbox("Select All Communication Types")
-        comm_selected = comm_options if select_all else st.pills("Filter Communication Types", comm_options, selection_mode="multi")
-    else:
-        comm_options = []
-        comm_selected = []
+    st.markdown("### 📨 Type of Communication")
+    comm_options = sorted(df["Type of Communication"].dropna().unique())
+    select_all = st.checkbox("Select All Communication Types")
+    comm_selected = comm_options if select_all else st.pills("Filter Communication Types", comm_options, selection_mode="multi")
 
-# Comment mapping only for OBD
-def get_comment(success_pct, vendor):
-    vendor = vendor.strip().lower()
-    success_pct = round(success_pct)
-
-    group_rr = ["RR Communication", "Go2market", "Half Circle", "Cosmic", "Inbox Media"]
-    group_sarv = ["Sarv", "Jio"]
-    group_riddhi = ["Riddhi Tech"]
-    group_netcore = ["Netcore"]
-
-    if vendor in [v.lower() for v in group_rr]:
-        if success_pct <= 35:
-            return "Run with No retries"
-        elif 36 <= success_pct <= 60:
-            return "Runs perfectly with 3 retries"
-        elif 61 <= success_pct <= 75:
-            return "5% chances of fraud"
-        elif 76 <= success_pct <= 90:
-            return "10% chances of fraud"
-        else:
-            return "15% chances of fraud"
-
-    elif vendor in [v.lower() for v in group_sarv]:
-        if success_pct <= 35:
-            return "Run with No retries"
-        elif 36 <= success_pct <= 55:
-            return "Runs perfectly with 3 retries"
-        elif 56 <= success_pct <= 65:
-            return "5% chances of fraud"
-        elif 66 <= success_pct <= 80:
-            return "10% chances of fraud"
-        else:
-            return "15% chances of fraud"
-
-    elif vendor in [v.lower() for v in group_riddhi]:
-        if success_pct <= 25:
-            return "100% DND scrubbing"
-        elif 26 <= success_pct <= 37:
-            return "50% DND Scrubbing"
-        elif 38 <= success_pct <= 60:
-            return "Runs perfectly with 3 retries"
-        elif 61 <= success_pct <= 70:
-            return "5% chances of fraud"
-        elif 71 <= success_pct <= 80:
-            return "10% chances of fraud"
-        else:
-            return "15% chances of fraud"
-
-    elif vendor in [v.lower() for v in group_netcore]:
-        if success_pct <= 20:
-            return "100% DND scrubbing"
-        elif 21 <= success_pct <= 30:
-            return "80% DND Scrubbing"
-        elif 31 <= success_pct <= 40:
-            return "50% DND Scrubbing"
-        elif 41 <= success_pct <= 60:
-            return "Runs perfectly with 3 retries"
-        elif 61 <= success_pct <= 70:
-            return "5% chances of fraud"
-        elif 71 <= success_pct <= 80:
-            return "10% chances of fraud"
-        else:
-            return "15% chances of fraud"
-
-    return "No comment"
-
-# Session state filters
+# Sidebar - Other filters
 for key in ["state_filter", "vendor_filter", "cohort_filter"]:
     if key not in st.session_state:
         st.session_state[key] = []
@@ -152,17 +82,13 @@ with st.sidebar:
             st.session_state.vendor_filter = []
             st.session_state.cohort_filter = []
 
-        state_options = sorted(df["State"].dropna().unique()) if "State" in df.columns else []
-        vendor_options = sorted(df["Vendor Name"].dropna().unique()) if "Vendor Name" in df.columns else []
-        cohort_options = sorted(df["Cohort"].dropna().unique()) if "Cohort" in df.columns else []
+        state_options = sorted(df["State"].dropna().unique())
+        vendor_options = sorted(df["Vendor Name"].dropna().unique())
+        cohort_options = sorted(df["Cohort"].dropna().unique())
 
-        valid_state_default = [x for x in st.session_state.state_filter if x in state_options]
-        valid_vendor_default = [x for x in st.session_state.vendor_filter if x in vendor_options]
-        valid_cohort_default = [x for x in st.session_state.cohort_filter if x in cohort_options]
-
-        state = st.multiselect("📍 State", state_options, default=valid_state_default, key="state_filter")
-        vendor = st.multiselect("🏷️ Vendor", vendor_options, default=valid_vendor_default, key="vendor_filter")
-        cohort = st.multiselect("🎯 Cohort", cohort_options, default=valid_cohort_default, key="cohort_filter")
+        state = st.multiselect("📍 State", state_options, default=st.session_state.state_filter, key="state_filter")
+        vendor = st.multiselect("🏷️ Vendor", vendor_options, default=st.session_state.vendor_filter, key="vendor_filter")
+        cohort = st.multiselect("🎯 Cohort", cohort_options, default=st.session_state.cohort_filter, key="cohort_filter")
 
     st.markdown("---")
     compact_style = "comma"
@@ -170,9 +96,8 @@ with st.sidebar:
     if format_option:
         compact_style = "compact"
 
-with st.sidebar:
     st.markdown("#### 📊 Dashboard Update")
-    if st.button("🔄 Click Refresh", use_container_width=False):
+    if st.button("🔄 Click Refresh"):
         st.cache_data.clear()
         st.rerun()
 
@@ -201,6 +126,74 @@ def format_compact_decimal(n):
         return f"{int(n / 10) / 100:.2f} K"
     return str(n)
 
+# Accurate Vendor-wise Comment Function
+def get_comment(success_pct, vendor):
+    vendor = vendor.strip().lower()
+    pct = round(success_pct)
+
+    rr_vendors = ["rr communication", "go2market", "half circle", "cosmic", "inbox media"]
+    sarv_vendors = ["sarv", "jio"]
+    riddhi_vendors = ["riddhi tech"]
+    netcore_vendors = ["netcore"]
+
+    if vendor in rr_vendors:
+        if 0 <= pct <= 20:
+            return "Runs on only 50% Data with No retries"
+        elif 21 <= pct <= 35:    
+            return "Run with No retries"
+        elif 36 <= pct <= 60:
+            return "Runs perfectly with 3 retries"
+        elif 61 <= pct <= 75:
+            return "5% chances of fraud"
+        elif 76 <= pct <= 90:
+            return "10% chances of fraud"
+        elif 91 <= pct <= 100:
+            return "15% chances of fraud"
+
+    elif vendor in sarv_vendors:
+        if 0 <= pct <= 35:
+            return "Run with No retries"
+        elif 36 <= pct <= 55:
+            return "Runs perfectly with 3 retries"
+        elif 56 <= pct <= 65:
+            return "5% chances of fraud"
+        elif 66 <= pct <= 80:
+            return "10% chances of fraud"
+        elif 81 <= pct <= 100:
+            return "15% chances of fraud"
+
+    elif vendor in riddhi_vendors:
+        if 0 <= pct <= 25:
+            return "100% DND scrubbing"
+        elif 26 <= pct <= 37:
+            return "50% DND Scrubbing"
+        elif 38 <= pct <= 60:
+            return "Runs perfectly with 3 retries"
+        elif 61 <= pct <= 70:
+            return "5% chances of fraud"
+        elif 71 <= pct <= 80:
+            return "10% chances of fraud"
+        elif 81 <= pct <= 100:
+            return "15% chances of fraud"
+
+    elif vendor in netcore_vendors:
+        if 0 <= pct <= 20:
+            return "100% DND scrubbing"
+        elif 21 <= pct <= 30:
+            return "80% DND Scrubbing"
+        elif 31 <= pct <= 40:
+            return "50% DND Scrubbing"
+        elif 41 <= pct <= 60:
+            return "Runs perfectly with 3 retries"
+        elif 61 <= pct <= 70:
+            return "5% chances of fraud"
+        elif 71 <= pct <= 80:
+            return "10% chances of fraud"
+        elif 81 <= pct <= 100:
+            return "15% chances of fraud"
+
+    return "-"
+
 # Apply Filters
 filtered_df = df.copy()
 if state:
@@ -212,16 +205,16 @@ if cohort:
 if comm_selected:
     filtered_df = filtered_df[filtered_df["Type of Communication"].isin(comm_selected)]
 
-# Summary Calculation
-if not filtered_df.empty and all(col in filtered_df.columns for col in ["Total Phone Numbers", "Total Success"]):
+# Summary Table
+if not filtered_df.empty:
     group_by = st.selectbox("📂 Group Data By", ["Vendor Name", "State", "Cohort"])
     summary = filtered_df.groupby(group_by)[["Total Phone Numbers", "Total Success"]].sum().reset_index()
     summary["Success %"] = summary.apply(lambda row: (row["Total Success"] / row["Total Phone Numbers"] * 100)
                                          if row["Total Phone Numbers"] > 0 else 0, axis=1).round(2)
 
-    if len(comm_selected) == 1 and comm_selected[0] == "OBD":
-        summary["Comment"] = summary.apply(lambda row: get_comment(row["Success %"], row[group_by]), axis=1)
-
+    # Apply accurate comment logic only when grouped by Vendor Name and OBD selected
+    if len(comm_selected) == 1 and comm_selected[0] == "OBD" and group_by == "Vendor Name":
+        summary["Comment"] = summary.apply(lambda row: get_comment(row["Success %"], row["Vendor Name"]), axis=1)
 
     total_ph = filtered_df["Total Phone Numbers"].sum()
     total_succ = filtered_df["Total Success"].sum()
@@ -238,28 +231,7 @@ if not filtered_df.empty and all(col in filtered_df.columns for col in ["Total P
         st.markdown("**📈 Overall Success %**")
         st.markdown(f"<h4>{overall_pct:.0f} %</h4>", unsafe_allow_html=True)
 
-
-    ## # Applied Filters Display
-    filters_applied = []
-    if state:
-        filters_applied.append(f"<span style='color:#2980b9;'>State:</span> {', '.join(state)}")
-    if vendor:
-        filters_applied.append(f"<span style='color:#f39c12;'>Vendors:</span> {', '.join(vendor)}")
-    if cohort:
-        filters_applied.append(f"<span style='color:#8e44ad;'>Cohorts:</span> {', '.join(cohort)}")
-    if comm_selected:
-        filters_applied.append(f"<span style='color:#FF00FF;'>Communication:</span> {', '.join(comm_selected)}")
-
-    if filters_applied:
-        st.markdown("#### 🔎 Filters Applied:")
-        for f in filters_applied:
-            st.markdown(f"<p>{f}</p>", unsafe_allow_html=True)
-
-
-
-
-    
-
+    st.markdown("### 📋 Summary Table")
     display_df = summary.copy()
     if compact_style == "compact":
         display_df["Total Phone Numbers"] = summary["Total Phone Numbers"].apply(format_compact_decimal)
@@ -272,13 +244,12 @@ if not filtered_df.empty and all(col in filtered_df.columns for col in ["Total P
     if "Comment" in summary.columns:
         display_df["Comment"] = summary["Comment"]
 
-    st.markdown("### 📋 Summary Table")
     display_df.index = range(1, len(display_df) + 1)
     st.dataframe(display_df, use_container_width=True)
 
+    # Chart
     chart_data = summary.copy().sort_values("Success %", ascending=False)
     chart_data["Success %"] = chart_data["Success %"].apply(lambda x: f"{x:.0f} %")
-
     fig = px.bar(
         chart_data,
         x=group_by,
@@ -288,20 +259,9 @@ if not filtered_df.empty and all(col in filtered_df.columns for col in ["Total P
         color_continuous_scale="Viridis",
         title=f"{group_by}-wise Success %"
     )
-
-    fig.update_traces(
-        texttemplate="<b>%{text}</b>",
-        textposition="inside",
-        insidetextanchor="end"
-    )
-
-    fig.update_layout(
-        yaxis_title="Success %",
-        xaxis_title=group_by,
-        uniformtext_minsize=8,
-        uniformtext_mode='hide'
-    )
-
+    fig.update_traces(texttemplate="<b>%{text}</b>", textposition="inside")
+    fig.update_layout(yaxis_title="Success %", xaxis_title=group_by)
     st.plotly_chart(fig, use_container_width=True)
+
 else:
     st.info("📌 Not enough data to display summary or metrics.")
