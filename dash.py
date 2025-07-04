@@ -235,7 +235,7 @@ if not filtered_df.empty and all(col in filtered_df.columns for col in ["Total P
         chart_data,
         x=group_by,
         y="Success %",
-        text="Success % Label",
+    #    text="Success % Label",
         color="Success %",
         color_continuous_scale="Viridis",
         title=f"{group_by}-wise Success %"
