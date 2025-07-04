@@ -229,7 +229,7 @@ if not filtered_df.empty and all(col in filtered_df.columns for col in ["Total P
     st.dataframe(display_df, use_container_width=True)
 
     chart_data = summary.copy().sort_values("Success %", ascending=False)
-    chart_data["Success % Label"] = chart_data["Success %"].apply(lambda x: f"{x:.0f} %")
+    chart_data["Success % "] = chart_data["Success %"].apply(lambda x: f"{x:.0f} %")
 
     fig = px.bar(
         chart_data,
@@ -242,7 +242,7 @@ if not filtered_df.empty and all(col in filtered_df.columns for col in ["Total P
     )
 
     fig.update_traces(
-        texttemplate="<b>%{y}</b>",
+        texttemplate="<b>%{text}</b>",
         textposition="inside",
         insidetextanchor="end"
     )
