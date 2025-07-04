@@ -229,13 +229,13 @@ if not filtered_df.empty and all(col in filtered_df.columns for col in ["Total P
     st.dataframe(display_df, use_container_width=True)
 
     chart_data = summary.copy().sort_values("Success %", ascending=False)
-    chart_data["Success % "] = chart_data["Success %"].apply(lambda x: f"{x:.0f} %")
+    chart_data["Success %"] = chart_data["Success %"].apply(lambda x: f"{x:.0f} %")
 
     fig = px.bar(
         chart_data,
         x=group_by,
         y="Success %",
-        text="Success % ",
+        text="Success %",
         color="Success %",
         color_continuous_scale="Viridis",
         title=f"{group_by}-wise Success %"
