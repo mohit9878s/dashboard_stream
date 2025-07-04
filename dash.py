@@ -188,7 +188,7 @@ if not filtered_df.empty and all(col in filtered_df.columns for col in ["Total P
         st.markdown(f"<h4>{format_compact_decimal(total_succ)} <span style='color:orangered;'>({format_indian_number(total_succ)})</span></h4>", unsafe_allow_html=True)
     with col3:
         st.markdown("**📈 Overall Success %**")
-        st.markdown(f"<h4>{overall_pct:.1f} %</h4>", unsafe_allow_html=True)
+        st.markdown(f"<h4>{overall_pct:.0f} %</h4>", unsafe_allow_html=True)
 
     display_df = summary.copy()
     if compact_style == "compact":
@@ -198,7 +198,7 @@ if not filtered_df.empty and all(col in filtered_df.columns for col in ["Total P
         display_df["Total Phone Numbers"] = summary["Total Phone Numbers"].apply(format_indian_number)
         display_df["Total Success"] = summary["Total Success"].apply(format_indian_number)
 
-    display_df["Success %"] = summary["Success %"].apply(lambda x: f"{x:.1f} %")
+    display_df["Success %"] = summary["Success %"].apply(lambda x: f"{x:.0f} %")
     if "Comment" in summary.columns:
         display_df["Comment"] = summary["Comment"]
 
@@ -207,7 +207,7 @@ if not filtered_df.empty and all(col in filtered_df.columns for col in ["Total P
     st.dataframe(display_df, use_container_width=True)
 
     chart_data = summary.copy().sort_values("Success %", ascending=False)
-    chart_data["Success % Label"] = chart_data["Success %"].apply(lambda x: f"{x:.1f} %")
+    chart_data["Success % Label"] = chart_data["Success %"].apply(lambda x: f"{x:.0f} %")
 
     fig = px.bar(
         chart_data,
