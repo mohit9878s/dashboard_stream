@@ -75,23 +75,70 @@ with st.sidebar:
         comm_selected = []
 
 # Comment mapping only for OBD
-comment_data = [
-    (0, 10, "Campaigns not initiated properly"),
-    (11, 20, "Run on only 30 to 40% of the phone numbers"),
-    (21, 30, "100% of DND scrubbing"),
-    (31, 40, "Only 1 retry"),
-    (41, 60, "Run perfectly with 3 retries"),
-    (61, 70, "up to 5% of fraud cahnce"),
-    (71, 80, "Up to 10% fraud chance"),
-    (81, 90, "Only the Success few Campaign Reports"),
-    (91, 100, "Only the Success Campaign Reports")
-]
+def get_comment(success_pct, vendor):
+    vendor = vendor.strip().lower()
+    success_pct = round(success_pct)
 
-def get_comment(success_pct):
-    for lower, upper, comment in comment_data:
-        if lower <= round(success_pct) <= upper:
-            return comment
-    return "No Comment Available"
+    group_rr = ["RR Communication", "Go2market", "Half Circle", "Cosmic", "Inbox Media"]
+    group_sarv = ["Sarv", "Jio"]
+    group_riddhi = ["Riddhi Tech"]
+    group_netcore = ["Netcore"]
+
+    if vendor in [v.lower() for v in group_rr]:
+        if success_pct <= 35:
+            return "Run with No retries"
+        elif 36 <= success_pct <= 60:
+            return "Runs perfectly with 3 retries"
+        elif 61 <= success_pct <= 75:
+            return "5% chances of fraud"
+        elif 76 <= success_pct <= 90:
+            return "10% chances of fraud"
+        else:
+            return "15% chances of fraud"
+
+    elif vendor in [v.lower() for v in group_sarv]:
+        if success_pct <= 35:
+            return "Run with No retries"
+        elif 36 <= success_pct <= 55:
+            return "Runs perfectly with 3 retries"
+        elif 56 <= success_pct <= 65:
+            return "5% chances of fraud"
+        elif 66 <= success_pct <= 80:
+            return "10% chances of fraud"
+        else:
+            return "15% chances of fraud"
+
+    elif vendor in [v.lower() for v in group_riddhi]:
+        if success_pct <= 25:
+            return "100% DND scrubbing"
+        elif 26 <= success_pct <= 37:
+            return "50% DND Scrubbing"
+        elif 38 <= success_pct <= 60:
+            return "Runs perfectly with 3 retries"
+        elif 61 <= success_pct <= 70:
+            return "5% chances of fraud"
+        elif 71 <= success_pct <= 80:
+            return "10% chances of fraud"
+        else:
+            return "15% chances of fraud"
+
+    elif vendor in [v.lower() for v in group_netcore]:
+        if success_pct <= 20:
+            return "100% DND scrubbing"
+        elif 21 <= success_pct <= 30:
+            return "80% DND Scrubbing"
+        elif 31 <= success_pct <= 40:
+            return "50% DND Scrubbing"
+        elif 41 <= success_pct <= 60:
+            return "Runs perfectly with 3 retries"
+        elif 61 <= success_pct <= 70:
+            return "5% chances of fraud"
+        elif 71 <= success_pct <= 80:
+            return "10% chances of fraud"
+        else:
+            return "15% chances of fraud"
+
+    return "No comment"
 
 # Session state filters
 for key in ["state_filter", "vendor_filter", "cohort_filter"]:
@@ -173,7 +220,8 @@ if not filtered_df.empty and all(col in filtered_df.columns for col in ["Total P
                                          if row["Total Phone Numbers"] > 0 else 0, axis=1).round(2)
 
     if len(comm_selected) == 1 and comm_selected[0] == "OBD":
-        summary["Comment"] = summary["Success %"].apply(lambda x: get_comment(x))
+        summary["Comment"] = summary.apply(lambda row: get_comment(row["Success %"], row[group_by]), axis=1)
+
 
     total_ph = filtered_df["Total Phone Numbers"].sum()
     total_succ = filtered_df["Total Success"].sum()
@@ -257,4 +305,3 @@ if not filtered_df.empty and all(col in filtered_df.columns for col in ["Total P
     st.plotly_chart(fig, use_container_width=True)
 else:
     st.info("📌 Not enough data to display summary or metrics.")
-
