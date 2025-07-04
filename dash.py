@@ -190,6 +190,28 @@ if not filtered_df.empty and all(col in filtered_df.columns for col in ["Total P
         st.markdown("**📈 Overall Success %**")
         st.markdown(f"<h4>{overall_pct:.0f} %</h4>", unsafe_allow_html=True)
 
+
+        # Applied Filters Display
+    filters_applied = []
+    if selected_states:
+        filters_applied.append(f"<span style='color:#2980b9;'>State:</span> {', '.join(state)}")
+    if selected_vendors:
+        filters_applied.append(f"<span style='color:#f39c12;'>Vendors:</span> {', '.join(vendor)}")
+    if selected_cohorts:
+        filters_applied.append(f"<span style='color:#8e44ad;'>Cohorts:</span> {', '.join(cohort)}")
+    if comm_selected:
+        filters_applied.append(f"<span style='color:#FF00FF;'>Communication:</span> {', '.join(comm_selected)}")
+
+    if filters_applied:
+        st.markdown("#### 🔎 Filters Applied:")
+        for f in filters_applied:
+            st.markdown(f"<p>{f}</p>", unsafe_allow_html=True)
+
+
+
+
+    
+
     display_df = summary.copy()
     if compact_style == "compact":
         display_df["Total Phone Numbers"] = summary["Total Phone Numbers"].apply(format_compact_decimal)
