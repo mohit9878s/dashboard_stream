@@ -242,7 +242,7 @@ if not filtered_df.empty and all(col in filtered_df.columns for col in ["Total P
     )
 
     fig.update_traces(
-        texttemplate="<b>%{text}</b>",
+        texttemplate="<b>%{y}</b>",
         textposition="inside",
         insidetextanchor="end"
     )
