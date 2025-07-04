@@ -156,12 +156,12 @@ def format_compact_decimal(n):
 
 # Apply Filters
 filtered_df = df.copy()
-if state:
-    filtered_df = filtered_df[filtered_df["State"].isin(state)]
-if vendor:
-    filtered_df = filtered_df[filtered_df["Vendor Name"].isin(vendor)]
-if cohort:
-    filtered_df = filtered_df[filtered_df["Cohort"].isin(cohort)]
+if selected_states:
+    filtered_df = filtered_df[filtered_df["State"].isin(selected_states)]
+if selected_vendors:
+    filtered_df = filtered_df[filtered_df["Vendor Name"].isin(selected_vendors)]
+if selected_cohorts:
+    filtered_df = filtered_df[filtered_df["Cohort"].isin(selected_cohorts)]
 if comm_selected:
     filtered_df = filtered_df[filtered_df["Type of Communication"].isin(comm_selected)]
 
@@ -191,14 +191,14 @@ if not filtered_df.empty and all(col in filtered_df.columns for col in ["Total P
         st.markdown(f"<h4>{overall_pct:.0f} %</h4>", unsafe_allow_html=True)
 
 
-        # Applied Filters Display
+    ### Applied Filters Display
     filters_applied = []
     if selected_states:
-        filters_applied.append(f"<span style='color:#2980b9;'>State:</span> {', '.join(state)}")
+        filters_applied.append(f"<span style='color:#2980b9;'>State:</span> {', '.join(selected_states)}")
     if selected_vendors:
-        filters_applied.append(f"<span style='color:#f39c12;'>Vendors:</span> {', '.join(vendor)}")
+        filters_applied.append(f"<span style='color:#f39c12;'>Vendors:</span> {', '.join(selected_vendors)}")
     if selected_cohorts:
-        filters_applied.append(f"<span style='color:#8e44ad;'>Cohorts:</span> {', '.join(cohort)}")
+        filters_applied.append(f"<span style='color:#8e44ad;'>Cohorts:</span> {', '.join(selected_cohorts)}")
     if comm_selected:
         filters_applied.append(f"<span style='color:#FF00FF;'>Communication:</span> {', '.join(comm_selected)}")
 
