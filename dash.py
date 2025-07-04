@@ -127,71 +127,84 @@ def format_compact_decimal(n):
     return str(n)
 
 # Accurate Vendor-wise Comment Function
-def get_comment(success_pct, vendor):
+def get_comment(success_pct, vendor, comm_type):
     vendor = vendor.strip().lower()
+    comm_type = comm_type.strip().lower()
     pct = round(success_pct)
 
     rr_vendors = ["rr communication", "go2market", "half circle", "cosmic", "inbox media"]
     sarv_vendors = ["sarv", "jio"]
     riddhi_vendors = ["riddhi tech"]
     netcore_vendors = ["netcore"]
+    whatsapp_vendors = ["vphone", "inbox media"]
 
-    if vendor in rr_vendors:
-        if 0 <= pct <= 20:
-            return "Runs on only 50% Data with No retries"
-        elif 21 <= pct <= 35:    
-            return "Run with No retries"
-        elif 36 <= pct <= 60:
-            return "Runs perfectly with 3 retries"
-        elif 61 <= pct <= 75:
-            return "5% chances of fraud"
-        elif 76 <= pct <= 90:
-            return "10% chances of fraud"
-        elif 91 <= pct <= 100:
-            return "15% chances of fraud"
+    if comm_type == "obd":
+        if vendor in rr_vendors:
+            if 0 <= pct <= 35:
+                return "Run with No retries"
+            elif 36 <= pct <= 60:
+                return "Runs perfectly with 3 retries"
+            elif 61 <= pct <= 75:
+                return "5% chances of fraud"
+            elif 76 <= pct <= 90:
+                return "10% chances of fraud"
+            elif 91 <= pct <= 100:
+                return "15% chances of fraud"
 
-    elif vendor in sarv_vendors:
-        if 0 <= pct <= 35:
-            return "Run with No retries"
-        elif 36 <= pct <= 55:
-            return "Runs perfectly with 3 retries"
-        elif 56 <= pct <= 65:
-            return "5% chances of fraud"
-        elif 66 <= pct <= 80:
-            return "10% chances of fraud"
-        elif 81 <= pct <= 100:
-            return "15% chances of fraud"
+        elif vendor in sarv_vendors:
+            if 0 <= pct <= 35:
+                return "Run with No retries"
+            elif 36 <= pct <= 55:
+                return "Runs perfectly with 3 retries"
+            elif 56 <= pct <= 65:
+                return "5% chances of fraud"
+            elif 66 <= pct <= 80:
+                return "10% chances of fraud"
+            elif 81 <= pct <= 100:
+                return "15% chances of fraud"
 
-    elif vendor in riddhi_vendors:
-        if 0 <= pct <= 25:
-            return "100% DND scrubbing"
-        elif 26 <= pct <= 37:
-            return "50% DND Scrubbing"
-        elif 38 <= pct <= 60:
-            return "Runs perfectly with 3 retries"
-        elif 61 <= pct <= 70:
-            return "5% chances of fraud"
-        elif 71 <= pct <= 80:
-            return "10% chances of fraud"
-        elif 81 <= pct <= 100:
-            return "15% chances of fraud"
+        elif vendor in riddhi_vendors:
+            if 0 <= pct <= 25:
+                return "100% DND scrubbing"
+            elif 26 <= pct <= 37:
+                return "50% DND Scrubbing"
+            elif 38 <= pct <= 60:
+                return "Runs perfectly with 3 retries"
+            elif 61 <= pct <= 70:
+                return "5% chances of fraud"
+            elif 71 <= pct <= 80:
+                return "10% chances of fraud"
+            elif 81 <= pct <= 100:
+                return "15% chances of fraud"
 
-    elif vendor in netcore_vendors:
-        if 0 <= pct <= 20:
-            return "100% DND scrubbing"
-        elif 21 <= pct <= 30:
-            return "80% DND Scrubbing"
-        elif 31 <= pct <= 40:
-            return "50% DND Scrubbing"
-        elif 41 <= pct <= 60:
-            return "Runs perfectly with 3 retries"
-        elif 61 <= pct <= 70:
-            return "5% chances of fraud"
-        elif 71 <= pct <= 80:
-            return "10% chances of fraud"
-        elif 81 <= pct <= 100:
-            return "15% chances of fraud"
+        elif vendor in netcore_vendors:
+            if 0 <= pct <= 20:
+                return "100% DND scrubbing"
+            elif 21 <= pct <= 30:
+                return "80% DND Scrubbing"
+            elif 31 <= pct <= 40:
+                return "50% DND Scrubbing"
+            elif 41 <= pct <= 60:
+                return "Runs perfectly with 3 retries"
+            elif 61 <= pct <= 70:
+                return "5% chances of fraud"
+            elif 71 <= pct <= 80:
+                return "10% chances of fraud"
+            elif 81 <= pct <= 100:
+                return "15% chances of fraud"
 
+    elif comm_type == "whatsapp":
+        if vendor in whatsapp_vendors:
+            if 0 <= pct <= 30:
+                return "Runs on only 50% Data"
+            elif 31 <= pct <= 50:
+                return "Run on only 75% Data"
+            elif 51 <= pct <= 82:
+                return "Runs perfectly"
+            elif 83 <= pct <= 90:
+                return "5% chances of fraud"
+            elif 91 <= pct <= 100:
+                return "10% chances of fraud"
     return "-"
 
 # Apply Filters
@@ -212,9 +225,9 @@ if not filtered_df.empty:
     summary["Success %"] = summary.apply(lambda row: (row["Total Success"] / row["Total Phone Numbers"] * 100)
                                          if row["Total Phone Numbers"] > 0 else 0, axis=1).round(2)
 
-    # Apply accurate comment logic only when grouped by Vendor Name and OBD selected
-    if len(comm_selected) == 1 and comm_selected[0] == "OBD" and group_by == "Vendor Name":
-        summary["Comment"] = summary.apply(lambda row: get_comment(row["Success %"], row["Vendor Name"]), axis=1)
+    # Apply accurate comment logic only when grouped by Vendor Name and communication selected
+    if len(comm_selected) == 1 and comm_selected[0] in ["OBD","WhatsApp"] and group_by == "Vendor Name":      #"WhatsApp"
+        summary["Comment"] = summary.apply(lambda row: get_comment(row["Success %"], row["Vendor Name"], comm_selected[0]), axis=1)
 
     total_ph = filtered_df["Total Phone Numbers"].sum()
     total_succ = filtered_df["Total Success"].sum()
@@ -250,18 +263,45 @@ if not filtered_df.empty:
     # Chart
     chart_data = summary.copy().sort_values("Success %", ascending=False)
     chart_data["Success %"] = chart_data["Success %"].apply(lambda x: f"{x:.0f} %")
+
+
+    chart_data["Total Data (Compact)"] = chart_data["Total Phone Numbers"].apply(format_compact_decimal)
+    chart_data["Total Success (Compact)"] = chart_data["Total Success"].apply(format_compact_decimal)
+
+
     fig = px.bar(
         chart_data,
         x=group_by,
         y="Success %",
         text="Success %",
-        color="Success %",
+        color=group_by,
         color_continuous_scale="Viridis",
-        title=f"{group_by}-wise Success %"
+        title=f"{group_by}-wise Success %",
+        custom_data=["Total Data (Compact)", "Total Success (Compact)"]
     )
-    fig.update_traces(texttemplate="<b>%{text}</b>", textposition="inside")
-    fig.update_layout(yaxis_title="Success %", xaxis_title=group_by)
-    st.plotly_chart(fig, use_container_width=True)
 
+    fig.update_traces(
+        texttemplate="<b>%{text}</b>",
+        textposition="inside",
+        insidetextanchor="end",
+        hovertemplate=
+            group_by + ": %{x}<br>" +
+            "Success %: %{y}<br>" +
+            "Total Data: %{customdata[0]}<br>" +
+            "Total Success: %{customdata[1]}<extra></extra>"
+    )
+
+    fig.update_layout(
+        yaxis_title="Success %",
+        xaxis_title=group_by,
+        uniformtext_minsize=8,
+        uniformtext_mode='hide',
+        margin=dict(t=40, b=50),  # Top & bottom padding
+        height=400,                # Custom height
+        showlegend=False
+    )
+
+
+    st.plotly_chart(fig, use_container_width=True)
 else:
     st.info("📌 Not enough data to display summary or metrics.")
