@@ -276,7 +276,8 @@ if selected_vendors:
     filtered_df = filtered_df[filtered_df["Vendor Name"].isin(selected_vendors)]
 if selected_cohorts:
     filtered_df = filtered_df[filtered_df["Cohort"].isin(selected_cohorts)]
-
+if comm_selected:
+    filtered_df = filtered_df[filtered_df["Type of Communication"].isin(comm_selected)]
 
 ######---- Summary Table Add columns Success (%) and comment -----
 if not filtered_df.empty:
