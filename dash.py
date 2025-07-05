@@ -1,4 +1,3 @@
-
 import streamlit as st
 import pandas as pd
 import plotly.express as px
@@ -7,19 +6,24 @@ from streamlit_autorefresh import st_autorefresh
 from datetime import datetime
 import pytz
 
+
 # Image to base64
 def image_to_base64(img_path):
     with open(img_path, "rb") as image_file:
         return base64.b64encode(image_file.read()).decode()
 
+
 # Paths
 jarvis_path = r"jarvis_Logo_.webp"
 jarvis_base64 = image_to_base64(jarvis_path)
 
+
 india_time = datetime.now(pytz.timezone('Asia/Kolkata')).strftime('%Y-%m-%d %H:%M:%S')
+
 
 # Page Config
 st.set_page_config(page_title="Communication Dashboard", layout="wide", initial_sidebar_state='auto')
+
 
 # Header UI
 st.markdown(f"""
@@ -37,8 +41,10 @@ st.markdown(f"""
     </div>
 """, unsafe_allow_html=True)
 
+
 # Google Sheet URL
 sheet_url = "https://docs.google.com/spreadsheets/d/1PAmuXQHqkVE5r0OjMwyvlxDS-O4e8CzBo8auI4uVYCA/edit#gid=1379708796"
+
 
 # Load data
 @st.cache_data(ttl=60)
@@ -51,18 +57,22 @@ def load_data(sheet_url):
         st.error(f"❌ Failed to fetch data: {e}")
         return None
 
+
 df = load_data(sheet_url)
 if df is None:
     st.stop()
 
+
 # Auto App refresh every 3 hours
 st_autorefresh(interval=3 * 60 * 60 * 1000, key="datarefresh")
+
 
 # Required columns check
 required_columns = ["State", "Vendor Name", "Type of Communication", "Cohort", "Total Phone Numbers", "Total Success"]
 missing_columns = [col for col in required_columns if col not in df.columns]
 if missing_columns:
     st.warning(f"⚠️ Some columns are missing in the sheet: {', '.join(missing_columns)}.")
+
 
 # Sidebar - Communication Filter
 with st.sidebar:
@@ -71,79 +81,88 @@ with st.sidebar:
     select_all = st.checkbox("Select All Communication Types")
     comm_selected = comm_options if select_all else st.pills("Filter Communication Types", comm_options, selection_mode="multi")
 
+
 ####--- 1 --- Sidebar - Other filters -----
-# for key in ["state_filter", "vendor_filter", "cohort_filter"]:
-#     if key not in st.session_state:
-#         st.session_state[key] = []
-# with st.sidebar:
-#     with st.expander("🎛️ Apply Filters", expanded=True):
-#         if st.button("❌ Clear Filters"):
-#             st.session_state.state_filter = []
-#             st.session_state.vendor_filter = []
-#             st.session_state.cohort_filter = []
-#         state_options = sorted(df["State"].dropna().unique())
-#         vendor_options = sorted(df["Vendor Name"].dropna().unique())
-#         cohort_options = sorted(df["Cohort"].dropna().unique())
-#         selected_states = st.multiselect("📍 State", state_options, default=st.session_state.state_filter, key="state_filter")
-#         selected_vendors = st.multiselect("🏷️ Vendor", vendor_options, default=st.session_state.vendor_filter, key="vendor_filter")
-#         selected_cohorts = st.multiselect("🎯 Cohort", cohort_options, default=st.session_state.cohort_filter, key="cohort_filter")
+for key in ["state_filter", "vendor_filter", "cohort_filter"]:
+    if key not in st.session_state:
+        st.session_state[key] = []
+with st.sidebar:
+    with st.expander("🎛️ Apply Filters", expanded=True):
+        if st.button("❌ Clear Filters"):
+            st.session_state.state_filter = []
+            st.session_state.vendor_filter = []
+            st.session_state.cohort_filter = []
+        state_options = sorted(df["State"].dropna().unique())
+        vendor_options = sorted(df["Vendor Name"].dropna().unique())
+        cohort_options = sorted(df["Cohort"].dropna().unique())
+        selected_states = st.multiselect("📍 State", state_options, default=st.session_state.state_filter, key="state_filter")
+        selected_vendors = st.multiselect("🏷️ Vendor", vendor_options, default=st.session_state.vendor_filter, key="vendor_filter")
+        selected_cohorts = st.multiselect("🎯 Cohort", cohort_options, default=st.session_state.cohort_filter, key="cohort_filter")
 #####--- 1 --- Sidebar - Other filters -----
 
 
+
+
 ########---- 2 --- check box Select All & unselect -------
-with st.sidebar:
-    with st.expander("🎛️ Apply Filters", expanded=True):
-        # 1. Clear Button – only clears session state
-        if st.button("❌ Clear Filters"):
-            st.session_state.selected_states = []
-            st.session_state.select_all_states = False
-            st.session_state.selected_vendors = []
-            st.session_state.select_all_vendors = False
-            st.session_state.selected_cohorts = []
-            st.session_state.select_all_cohorts = False
-        # ------------ 📍 State Filter ------------
-        state_options = sorted(df["State"].dropna().unique())
-        if "selected_states" not in st.session_state:
-            st.session_state.selected_states = []
-        if "select_all_states" not in st.session_state:
-            st.session_state.select_all_states = False
-        def toggle_states():
-            if st.session_state.select_all_states:
-                st.session_state.selected_states = state_options
-            else:
-                st.session_state.selected_states = []
-        st.checkbox(" Select All States", value=st.session_state.select_all_states, key="select_all_states", on_change=toggle_states)
-        selected_states = st.multiselect("📍 State", state_options, default=st.session_state.selected_states, key="state_multi")
-        st.session_state.selected_states = selected_states
-        # ------------ 🏷️ Vendor Filter ------------
-        vendor_options = sorted(df["Vendor Name"].dropna().unique())
-        if "selected_vendors" not in st.session_state:
-            st.session_state.selected_vendors = []
-        if "select_all_vendors" not in st.session_state:
-            st.session_state.select_all_vendors = False
-        def toggle_vendors():
-            if st.session_state.select_all_vendors:
-                st.session_state.selected_vendors = vendor_options
-            else:
-                st.session_state.selected_vendors = []
-        st.checkbox(" Select All Vendors", value=st.session_state.select_all_vendors, key="select_all_vendors", on_change=toggle_vendors)
-        selected_vendors = st.multiselect("🏷️ Vendor", vendor_options, default=st.session_state.selected_vendors, key="vendor_multi")
-        st.session_state.selected_vendors = selected_vendors
-        # ------------ 🎯 Cohort Filter ------------
-        cohort_options = sorted(df["Cohort"].dropna().unique())
-        if "selected_cohorts" not in st.session_state:
-            st.session_state.selected_cohorts = []
-        if "select_all_cohorts" not in st.session_state:
-            st.session_state.select_all_cohorts = False
-        def toggle_cohorts():
-            if st.session_state.select_all_cohorts:
-                st.session_state.selected_cohorts = cohort_options
-            else:
-                st.session_state.selected_cohorts = []
-        st.checkbox(" Select All Cohorts", value=st.session_state.select_all_cohorts, key="select_all_cohorts", on_change=toggle_cohorts)
-        selected_cohorts = st.multiselect("🎯 Cohort", cohort_options, default=st.session_state.selected_cohorts, key="cohort_multi")
-        st.session_state.selected_cohorts = selected_cohorts
+# with st.sidebar:
+#     with st.expander("🎛️ Apply Filters", expanded=True):
+#         # 1. Clear Button – only clears session state
+#         if st.button("❌ Clear Filters"):
+#             keys_to_reset = [
+#                 "selected_states", "select_all_states", "state_multi",
+#                 "selected_vendors", "select_all_vendors", "vendor_multi",
+#                 "selected_cohorts", "select_all_cohorts", "cohort_multi"
+#             ]
+#             for key in keys_to_reset:
+#                 if key in st.session_state:
+#                     del st.session_state[key]
+#             st.rerun()
+#         # ------------ 📍 State Filter ------------
+#         state_options = sorted(df["State"].dropna().unique())
+#         if "selected_states" not in st.session_state:
+#             st.session_state.selected_states = []
+#         if "select_all_states" not in st.session_state:
+#             st.session_state.select_all_states = False
+#         def toggle_states():
+#             if st.session_state.select_all_states:
+#                 st.session_state.selected_states = state_options
+#             else:
+#                 st.session_state.selected_states = []
+#         st.checkbox(" Select All States", value=st.session_state.select_all_states, key="select_all_states", on_change=toggle_states)
+#         selected_states = st.multiselect("📍 State", state_options, default=st.session_state.selected_states, key="state_multi")
+#         st.session_state.selected_states = selected_states
+#         # ------------ 🏷️ Vendor Filter ------------
+#         vendor_options = sorted(df["Vendor Name"].dropna().unique())
+#         if "selected_vendors" not in st.session_state:
+#             st.session_state.selected_vendors = []
+#         if "select_all_vendors" not in st.session_state:
+#             st.session_state.select_all_vendors = False
+#         def toggle_vendors():
+#             if st.session_state.select_all_vendors:
+#                 st.session_state.selected_vendors = vendor_options
+#             else:
+#                 st.session_state.selected_vendors = []
+#         st.checkbox(" Select All Vendors", value=st.session_state.select_all_vendors, key="select_all_vendors", on_change=toggle_vendors)
+#         selected_vendors = st.multiselect("🏷️ Vendor", vendor_options, default=st.session_state.selected_vendors, key="vendor_multi")
+#         st.session_state.selected_vendors = selected_vendors
+#         # ------------ 🎯 Cohort Filter ------------
+#         cohort_options = sorted(df["Cohort"].dropna().unique())
+#         if "selected_cohorts" not in st.session_state:
+#             st.session_state.selected_cohorts = []
+#         if "select_all_cohorts" not in st.session_state:
+#             st.session_state.select_all_cohorts = False
+#         def toggle_cohorts():
+#             if st.session_state.select_all_cohorts:
+#                 st.session_state.selected_cohorts = cohort_options
+#             else:
+#                 st.session_state.selected_cohorts = []
+#         st.checkbox(" Select All Cohorts", value=st.session_state.select_all_cohorts, key="select_all_cohorts", on_change=toggle_cohorts)
+#         selected_cohorts = st.multiselect("🎯 Cohort", cohort_options, default=st.session_state.selected_cohorts, key="cohort_multi")
+#         st.session_state.selected_cohorts = selected_cohorts
 ########---- 2 --- check box Select All & unselect -------
+
+
+
 
 
 
@@ -155,11 +174,14 @@ with st.sidebar:
     if format_option:
         compact_style = "compact"
 
+
     st.markdown("#### 📊 Dashboard Update")
     if st.button("🔄 Click Refresh"):
         st.cache_data.clear()
         st.rerun()
 #########  Number Decimal Format & Dashboard Update ---------
+
+
 
 
 # Format functions
@@ -177,6 +199,7 @@ def format_indian_number(n):
         parts.insert(0, rest)
     return ",".join(parts) + "," + last_three
 
+
 def format_compact_decimal(n):
     n = int(n)
     if n >= 1e7:
@@ -187,17 +210,20 @@ def format_compact_decimal(n):
         return f"{int(n / 10) / 100:.2f} K"
     return str(n)
 
+
 # Accurate Vendor-wise Comment Function
 def get_comment(success_pct, vendor, comm_type):
     vendor = vendor.strip().lower()
     comm_type = comm_type.strip().lower()
     pct = round(success_pct)
 
+
     rr_vendors = ["rr communication", "go2market", "half circle", "cosmic", "inbox media"]
     sarv_vendors = ["sarv", "jio"]
     riddhi_vendors = ["riddhi tech"]
     netcore_vendors = ["netcore"]
     whatsapp_vendors = ["vphone", "inbox media"]
+
 
     if comm_type == "obd":
         if vendor in rr_vendors:
@@ -212,6 +238,7 @@ def get_comment(success_pct, vendor, comm_type):
             elif 91 <= pct <= 100:
                 return "15% chances of fraud"
 
+
         elif vendor in sarv_vendors:
             if 0 <= pct <= 35:
                 return "Run with No retries"
@@ -223,6 +250,7 @@ def get_comment(success_pct, vendor, comm_type):
                 return "10% chances of fraud"
             elif 81 <= pct <= 100:
                 return "15% chances of fraud"
+
 
         elif vendor in riddhi_vendors:
             if 0 <= pct <= 25:
@@ -237,6 +265,7 @@ def get_comment(success_pct, vendor, comm_type):
                 return "10% chances of fraud"
             elif 81 <= pct <= 100:
                 return "15% chances of fraud"
+
 
         elif vendor in netcore_vendors:
             if 0 <= pct <= 20:
@@ -254,6 +283,7 @@ def get_comment(success_pct, vendor, comm_type):
             elif 81 <= pct <= 100:
                 return "15% chances of fraud"
 
+
     elif comm_type == "whatsapp":
         if vendor in whatsapp_vendors:
             if 0 <= pct <= 30:
@@ -268,6 +298,8 @@ def get_comment(success_pct, vendor, comm_type):
                 return "10% chances of fraud"
     return "-"
 
+
+# Apply Filters
 # Apply Filters
 filtered_df = df.copy()
 if selected_states:
@@ -279,6 +311,9 @@ if selected_cohorts:
 if comm_selected:
     filtered_df = filtered_df[filtered_df["Type of Communication"].isin(comm_selected)]
 
+
+
+
 ######---- Summary Table Add columns Success (%) and comment -----
 if not filtered_df.empty:
     group_by = st.selectbox("📂 Group Data By", ["Vendor Name", "State", "Cohort"])
@@ -286,13 +321,16 @@ if not filtered_df.empty:
     summary["Success %"] = summary.apply(lambda row: (row["Total Success"] / row["Total Phone Numbers"] * 100)
                                         if row["Total Phone Numbers"] > 0 else 0, axis=1).round(2)
 
+
     # Apply accurate comment logic only when grouped by Vendor Name and communication selected
     if len(comm_selected) == 1 and comm_selected[0] in ["OBD","WhatsApp"] and group_by == "Vendor Name":      #"WhatsApp"
         summary["Comment"] = summary.apply(lambda row: get_comment(row["Success %"], row["Vendor Name"], comm_selected[0]), axis=1)
 
+
     total_ph = filtered_df["Total Phone Numbers"].sum()
     total_succ = filtered_df["Total Success"].sum()
     overall_pct = (total_succ / total_ph * 100) if total_ph else 0
+
 
     col1, col2, col3 = st.columns(3)
     with col1:
@@ -304,6 +342,7 @@ if not filtered_df.empty:
     with col3:
         st.markdown("**📈 Overall Success %**")
         st.markdown(f"<h4>{overall_pct:.0f} %</h4>", unsafe_allow_html=True)
+
 
 ### --- Applied Filters Display ----
     filtered_df = []
@@ -322,6 +361,8 @@ if not filtered_df.empty:
 ### --- Applied Filters Display ----
 
 
+
+
     st.markdown("### 📋 Summary Table")
     display_df = summary.copy()
     if compact_style == "compact":
@@ -331,20 +372,27 @@ if not filtered_df.empty:
         display_df["Total Phone Numbers"] = summary["Total Phone Numbers"].apply(format_indian_number)
         display_df["Total Success"] = summary["Total Success"].apply(format_indian_number)
 
+
     display_df["Success %"] = summary["Success %"].apply(lambda x: f"{x:.0f} %")
     if "Comment" in summary.columns:
         display_df["Comment"] = summary["Comment"]
 
+
     display_df.index = range(1, len(display_df) + 1)
     st.dataframe(display_df, use_container_width=True)
+
 
     # Chart
     chart_data = summary.copy().sort_values("Success %", ascending=False)
     chart_data["Success %"] = chart_data["Success %"].apply(lambda x: f"{x:.0f} %")
 
 
+
+
     chart_data["Total Data (Compact)"] = chart_data["Total Phone Numbers"].apply(format_compact_decimal)
     chart_data["Total Success (Compact)"] = chart_data["Total Success"].apply(format_compact_decimal)
+
+
 
 
     fig = px.bar(
@@ -358,6 +406,7 @@ if not filtered_df.empty:
         custom_data=["Total Data (Compact)", "Total Success (Compact)"]
     )
 
+
     fig.update_traces(
         texttemplate="<b>%{text}</b>",
         textposition="inside",
@@ -369,6 +418,7 @@ if not filtered_df.empty:
             "Total Success: %{customdata[1]}<extra></extra>"
     )
 
+
     fig.update_layout(
         yaxis_title="Success %",
         xaxis_title=group_by,
@@ -379,6 +429,8 @@ if not filtered_df.empty:
         showlegend=False
     )
 
+
     st.plotly_chart(fig, use_container_width=True)
 else:
     st.info("📌 Not enough data to display summary or metrics.")
+
