@@ -70,29 +70,87 @@ with st.sidebar:
     select_all = st.checkbox("Select All Communication Types")
     comm_selected = comm_options if select_all else st.pills("Filter Communication Types", comm_options, selection_mode="multi")
 
-# Sidebar - Other filters
-for key in ["state_filter", "vendor_filter", "cohort_filter"]:
-    if key not in st.session_state:
-        st.session_state[key] = []
+####--- 1 --- Sidebar - Other filters -----
+# for key in ["state_filter", "vendor_filter", "cohort_filter"]:
+#     if key not in st.session_state:
+#         st.session_state[key] = []
+# with st.sidebar:
+#     with st.expander("🎛️ Apply Filters", expanded=True):
+#         if st.button("❌ Clear Filters"):
+#             st.session_state.state_filter = []
+#             st.session_state.vendor_filter = []
+#             st.session_state.cohort_filter = []
+#         state_options = sorted(df["State"].dropna().unique())
+#         vendor_options = sorted(df["Vendor Name"].dropna().unique())
+#         cohort_options = sorted(df["Cohort"].dropna().unique())
+#         selected_states = st.multiselect("📍 State", state_options, default=st.session_state.state_filter, key="state_filter")
+#         selected_vendors = st.multiselect("🏷️ Vendor", vendor_options, default=st.session_state.vendor_filter, key="vendor_filter")
+#         selected_cohorts = st.multiselect("🎯 Cohort", cohort_options, default=st.session_state.cohort_filter, key="cohort_filter")
+#####--- 1 --- Sidebar - Other filters -----
 
+
+########---- 2 --- check box Select All & unselect -------
 with st.sidebar:
     with st.expander("🎛️ Apply Filters", expanded=True):
+        # 1. Clear Button – only clears session state
         if st.button("❌ Clear Filters"):
-            st.session_state.state_filter = []
-            st.session_state.vendor_filter = []
-            st.session_state.cohort_filter = []
-
+            st.session_state.selected_states = []
+            st.session_state.select_all_states = False
+            st.session_state.selected_vendors = []
+            st.session_state.select_all_vendors = False
+            st.session_state.selected_cohorts = []
+            st.session_state.select_all_cohorts = False
+        # ------------ 📍 State Filter ------------
         state_options = sorted(df["State"].dropna().unique())
+        if "selected_states" not in st.session_state:
+            st.session_state.selected_states = []
+        if "select_all_states" not in st.session_state:
+            st.session_state.select_all_states = False
+        def toggle_states():
+            if st.session_state.select_all_states:
+                st.session_state.selected_states = state_options
+            else:
+                st.session_state.selected_states = []
+        st.checkbox(" Select All States", value=st.session_state.select_all_states, key="select_all_states", on_change=toggle_states)
+        selected_states = st.multiselect("📍 State", state_options, default=st.session_state.selected_states, key="state_multi")
+        st.session_state.selected_states = selected_states
+        # ------------ 🏷️ Vendor Filter ------------
         vendor_options = sorted(df["Vendor Name"].dropna().unique())
+        if "selected_vendors" not in st.session_state:
+            st.session_state.selected_vendors = []
+        if "select_all_vendors" not in st.session_state:
+            st.session_state.select_all_vendors = False
+        def toggle_vendors():
+            if st.session_state.select_all_vendors:
+                st.session_state.selected_vendors = vendor_options
+            else:
+                st.session_state.selected_vendors = []
+        st.checkbox(" Select All Vendors", value=st.session_state.select_all_vendors, key="select_all_vendors", on_change=toggle_vendors)
+        selected_vendors = st.multiselect("🏷️ Vendor", vendor_options, default=st.session_state.selected_vendors, key="vendor_multi")
+        st.session_state.selected_vendors = selected_vendors
+        # ------------ 🎯 Cohort Filter ------------
         cohort_options = sorted(df["Cohort"].dropna().unique())
+        if "selected_cohorts" not in st.session_state:
+            st.session_state.selected_cohorts = []
+        if "select_all_cohorts" not in st.session_state:
+            st.session_state.select_all_cohorts = False
+        def toggle_cohorts():
+            if st.session_state.select_all_cohorts:
+                st.session_state.selected_cohorts = cohort_options
+            else:
+                st.session_state.selected_cohorts = []
+        st.checkbox(" Select All Cohorts", value=st.session_state.select_all_cohorts, key="select_all_cohorts", on_change=toggle_cohorts)
+        selected_cohorts = st.multiselect("🎯 Cohort", cohort_options, default=st.session_state.selected_cohorts, key="cohort_multi")
+        st.session_state.selected_cohorts = selected_cohorts
+########---- 2 --- check box Select All & unselect -------
 
-        state = st.multiselect("📍 State", state_options, default=st.session_state.state_filter, key="state_filter")
-        vendor = st.multiselect("🏷️ Vendor", vendor_options, default=st.session_state.vendor_filter, key="vendor_filter")
-        cohort = st.multiselect("🎯 Cohort", cohort_options, default=st.session_state.cohort_filter, key="cohort_filter")
 
+
+#########  Number Decimal Format & Dashboard Update ---------
+with st.sidebar:
     st.markdown("---")
     compact_style = "comma"
-    format_option = st.pills("Show Numbering Format As", ["Decimal Format ( e.g. 1.1 : K, L, Cr )"])
+    format_option = st.pills("Show Number Format As", ["Decimal Format ( e.g. 1.1 : K, L, Cr )"])
     if format_option:
         compact_style = "compact"
 
@@ -100,6 +158,8 @@ with st.sidebar:
     if st.button("🔄 Click Refresh"):
         st.cache_data.clear()
         st.rerun()
+#########  Number Decimal Format & Dashboard Update ---------
+
 
 # Format functions
 def format_indian_number(n):
@@ -209,12 +269,12 @@ def get_comment(success_pct, vendor, comm_type):
 
 # Apply Filters
 filtered_df = df.copy()
-if state:
-    filtered_df = filtered_df[filtered_df["State"].isin(state)]
-if vendor:
-    filtered_df = filtered_df[filtered_df["Vendor Name"].isin(vendor)]
-if cohort:
-    filtered_df = filtered_df[filtered_df["Cohort"].isin(cohort)]
+if selected_states:
+    filtered_df = filtered_df[filtered_df["State"].isin(selected_states)]
+if selected_vendors:
+    filtered_df = filtered_df[filtered_df["Vendor Name"].isin(selected_vendors)]
+if selected_cohorts:
+    filtered_df = filtered_df[filtered_df["Cohort"].isin(selected_cohorts)]
 if comm_selected:
     filtered_df = filtered_df[filtered_df["Type of Communication"].isin(comm_selected)]
 
@@ -300,7 +360,6 @@ if not filtered_df.empty:
         height=400,                # Custom height
         showlegend=False
     )
-
 
     st.plotly_chart(fig, use_container_width=True)
 else:
