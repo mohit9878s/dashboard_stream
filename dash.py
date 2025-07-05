@@ -107,17 +107,6 @@ with st.sidebar:
 ########---- 2 --- check box Select All & unselect -------
 # with st.sidebar:
 #     with st.expander("🎛️ Apply Filters", expanded=True):
-#         # 1. Clear Button – only clears session state
-#         if st.button("❌ Clear Filters"):
-#             keys_to_reset = [
-#                 "selected_states", "select_all_states", "state_multi",
-#                 "selected_vendors", "select_all_vendors", "vendor_multi",
-#                 "selected_cohorts", "select_all_cohorts", "cohort_multi"
-#             ]
-#             for key in keys_to_reset:
-#                 if key in st.session_state:
-#                     del st.session_state[key]
-#             st.rerun()
 #         # ------------ 📍 State Filter ------------
 #         state_options = sorted(df["State"].dropna().unique())
 #         if "selected_states" not in st.session_state:
