@@ -275,15 +275,14 @@ if selected_vendors:
     filtered_df = filtered_df[filtered_df["Vendor Name"].isin(selected_vendors)]
 if selected_cohorts:
     filtered_df = filtered_df[filtered_df["Cohort"].isin(selected_cohorts)]
-if comm_selected:
-    filtered_df = filtered_df[filtered_df["Type of Communication"].isin(comm_selected)]
 
-# Summary Table
+
+######---- Summary Table Add columns Success (%) and comment -----
 if not filtered_df.empty:
     group_by = st.selectbox("📂 Group Data By", ["Vendor Name", "State", "Cohort"])
     summary = filtered_df.groupby(group_by)[["Total Phone Numbers", "Total Success"]].sum().reset_index()
     summary["Success %"] = summary.apply(lambda row: (row["Total Success"] / row["Total Phone Numbers"] * 100)
-                                         if row["Total Phone Numbers"] > 0 else 0, axis=1).round(2)
+                                        if row["Total Phone Numbers"] > 0 else 0, axis=1).round(2)
 
     # Apply accurate comment logic only when grouped by Vendor Name and communication selected
     if len(comm_selected) == 1 and comm_selected[0] in ["OBD","WhatsApp"] and group_by == "Vendor Name":      #"WhatsApp"
@@ -303,6 +302,23 @@ if not filtered_df.empty:
     with col3:
         st.markdown("**📈 Overall Success %**")
         st.markdown(f"<h4>{overall_pct:.0f} %</h4>", unsafe_allow_html=True)
+
+### --- Applied Filters Display ----
+    filtered_df = []
+    if selected_states:
+        filtered_df.append(f"<span style='color:#2980b9;'>State:</span> {', '.join(selected_states)}")
+    if selected_vendors:
+        filtered_df.append(f"<span style='color:#f39c12;'>Vendors:</span> {', '.join(selected_vendors)}")
+    if selected_cohorts:
+        filtered_df.append(f"<span style='color:#8e44ad;'>Cohorts:</span> {', '.join(selected_cohorts)}")
+    if comm_selected:
+        filtered_df.append(f"<span style='color:#FF00FF;'>Communication:</span> {', '.join(comm_selected)}")
+    if filtered_df:
+        st.markdown("#### 🔎 Filters Applied:")
+        for f in filtered_df:
+            st.markdown(f"<p>{f}</p>", unsafe_allow_html=True)
+### --- Applied Filters Display ----
+
 
     st.markdown("### 📋 Summary Table")
     display_df = summary.copy()
@@ -364,4 +380,3 @@ if not filtered_df.empty:
     st.plotly_chart(fig, use_container_width=True)
 else:
     st.info("📌 Not enough data to display summary or metrics.")
-
