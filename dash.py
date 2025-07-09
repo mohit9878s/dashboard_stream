@@ -7,7 +7,7 @@ from streamlit_autorefresh import st_autorefresh
 from datetime import datetime
 import pytz
 
-comments_col = "Comments (by Gaurav Kumar)"
+comments_col = "Comments by Gaurav Kumar"
 
 # Image to base64
 def image_to_base64(img_path):
