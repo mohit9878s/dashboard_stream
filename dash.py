@@ -7,6 +7,7 @@ from streamlit_autorefresh import st_autorefresh
 from datetime import datetime
 import pytz
 
+comments_col = "Comments (by Gaurav Kumar)"
 
 # Image to base64
 def image_to_base64(img_path):
@@ -314,7 +315,7 @@ if not filtered_df.empty:
 
     # Apply accurate comment logic only when grouped by Vendor Name and communication selected
     if len(comm_selected) == 1 and comm_selected[0] in ["OBD","WhatsApp"] and group_by == "Vendor Name":      #"WhatsApp"
-        summary["Comment"] = summary.apply(lambda row: get_comment(row["Success %"], row["Vendor Name"], comm_selected[0]), axis=1)
+        summary[comments_col] = summary.apply(lambda row: get_comment(row["Success %"], row["Vendor Name"], comm_selected[0]), axis=1)
 
 
     total_ph = filtered_df["Total Phone Numbers"].sum()
@@ -364,8 +365,8 @@ if not filtered_df.empty:
 
 
     display_df["Success %"] = summary["Success %"].apply(lambda x: f"{x:.0f} %")
-    if "Comment" in summary.columns:
-        display_df["Comment (by Gaurav Kumar)"] = summary["Comment"]
+    if comments_col in summary.columns:
+        display_df[comments_col] = summary[comments_col]
 
 
     display_df.index = range(1, len(display_df) + 1)
