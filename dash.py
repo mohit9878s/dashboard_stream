@@ -365,7 +365,7 @@ if not filtered_df.empty:
 
     display_df["Success %"] = summary["Success %"].apply(lambda x: f"{x:.0f} %")
     if "Comment" in summary.columns:
-        display_df["Comment"] = summary["Comment"]
+        display_df["Comment (by Gaurav Kumar)"] = summary["Comment"]
 
 
     display_df.index = range(1, len(display_df) + 1)
