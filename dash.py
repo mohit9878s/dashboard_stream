@@ -44,10 +44,10 @@ st.markdown(f"""
     <div style='margin-top: 1rem; display: flex; align-items: center; justify-content: space-between; padding: 0.2px 0;'>
         <div><img src='data:image/webp;base64,{jarvis_base64}' width='60'/></div>
         <div style='text-align: center; flex-grow: 1;'>
-            <span style='font-size: 24px; font-weight: bold;
+            <span style='font-size: 28px; font-weight: bold;
                 background: linear-gradient(90deg, #ff9900, #ff6600);
                 -webkit-background-clip: text; color: transparent;
-                text-shadow: 0 0 10px rgba(255,102,0,0.1);'>
+                text-shadow: 0 0 0px rgba(255,102,0,0.1);'>
                 Communication Dashboard
             </span>
         </div>
