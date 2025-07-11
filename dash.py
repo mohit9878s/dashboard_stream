@@ -40,7 +40,7 @@ st.markdown("""
 
 ##### ------ Header UI jarvis logo  Communication Dashboard ----------
 st.markdown(f"""
-    <div style='display: flex; align-items: center; justify-content: space-between; padding: 1px 0;'>
+    <div style='margin-top: 1rem; display: flex; align-items: center; justify-content: space-between; padding: 1px 0;'>
         <div><img src='data:image/webp;base64,{jarvis_base64}' width='100'/></div>
         <div style='text-align: center; flex-grow: 1;'>
             <span style='font-size: 28px; font-weight: bold;
