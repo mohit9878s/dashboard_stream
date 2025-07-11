@@ -23,17 +23,27 @@ jarvis_base64 = image_to_base64(jarvis_path)
 
 india_time = datetime.now(pytz.timezone('Asia/Kolkata')).strftime('%Y-%m-%d %H:%M:%S')
 
-
-# Page Config
+#### ------ Page View ------
+### Page Config
 st.set_page_config(page_title="Communication Dashboard", layout="wide", initial_sidebar_state='auto')
+### Reduce top blank space using custom CSS
+st.markdown("""
+    <style>
+        .block-container {
+            padding-top: 0.5rem !important;
+        }
+    </style>
+""", unsafe_allow_html=True)
+#### ------ Page View ------
+
 
 
 ##### ------ Header UI jarvis logo  Communication Dashboard ----------
 st.markdown(f"""
-    <div style='display: flex; align-items: center; justify-content: space-between; padding: 12px 0;'>
-        <div><img src='data:image/webp;base64,{jarvis_base64}' width='120'/></div>
+    <div style='display: flex; align-items: center; justify-content: space-between; padding: 2px 0;'>
+        <div><img src='data:image/webp;base64,{jarvis_base64}' width='70'/></div>
         <div style='text-align: center; flex-grow: 1;'>
-            <span style='font-size: 38px; font-weight: bold;
+            <span style='font-size: 25px; font-weight: bold;
                 background: linear-gradient(90deg, #ff9900, #ff6600);
                 -webkit-background-clip: text; color: transparent;
                 text-shadow: 0 0 10px rgba(255,102,0,0.1);'>
