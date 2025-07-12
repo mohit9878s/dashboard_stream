@@ -1,6 +1,3 @@
-##-- Username & Password code
-
-
 import streamlit as st
 import pandas as pd
 import streamlit_authenticator as stauth
@@ -11,16 +8,19 @@ import pytz
 import plotly.express as px
 from collections import defaultdict
 
-comment_cols='Comments (by Gaurav Kumar)'
-india_time = datetime.now(pytz.timezone('Asia/Kolkata')).strftime('%Y-%m-%d %H:%M:%S')
-
 ######--------- Image to base64 ----------
 def image_to_base64(img_path):
     with open(img_path, "rb") as image_file:
         return base64.b64encode(image_file.read()).decode()
+# Paths
+# jarvis_path = r"jarvis_Logo_.webp"
 jarvis_path = r"jarvis_Logo_1.png"
 jarvis_base64 = image_to_base64(jarvis_path)
 ######--------- Image to base64 ----------
+
+
+india_time = datetime.now(pytz.timezone('Asia/Kolkata')).strftime('%Y-%m-%d %H:%M:%S')
+comment_cols='Comments (by Gaurav Kumar)'
 
 # Page Config
 st.set_page_config(page_title="Communication Dashboard", layout="wide", initial_sidebar_state='auto')
@@ -49,7 +49,25 @@ st.markdown(f"""
     </div>
 """, unsafe_allow_html=True)
 
-##### ------------- Username & password  and allowed states access via google sheets -----------------------
+##### ------ Header UI jarvis logo  Communication Dashboard ----------
+# st.markdown(f"""
+#     <div style='display: flex; align-items: center; justify-content: space-between; padding: 2px 0;'>
+#         <div><img src='data:image/webp;base64,{jarvis_base64}' width='70'/></div>
+#         <div style='text-align: center; flex-grow: 1;'>
+#             <span style='font-size: 25px; font-weight: bold;
+#                 background: linear-gradient(90deg, #ff9900, #ff6600);
+#                 -webkit-background-clip: text; color: transparent;
+#                 text-shadow: 0 0 10px rgba(255,102,0,0.1);'>
+#                 Communication Dashboard
+#             </span>
+#         </div>
+#         <div></div>
+#     </div>
+# """, unsafe_allow_html=True)
+##### ------ Header UI jarvis logo  Communication Dashboard ----------
+
+
+##### ------------- User credentials and allowed states -----------------------
 from collections import defaultdict
 
 # # Step 1: Load user credentials from Google Sheet
@@ -85,16 +103,16 @@ for _, row in user_df.iterrows():
             "name": name,
             "password": password
         }
+
     # Add multiple states to a list
     if username not in user_state_map:
         user_state_map[username] = []
+
     if state.lower() == "all":
         user_state_map[username] = ["ALL"]
     elif "ALL" not in user_state_map[username]:  # Don't add if already ALL
         user_state_map[username].append(state)
-##### ------------- Username & password  and allowed states access via google sheets -----------------------
 
-#######---- mannula username & password entry -----------
 # user_credentials = {
 #     "usernames": {
 #         "admin":{"name": "Admin", "password": "admin123"},
@@ -111,9 +129,6 @@ for _, row in user_df.iterrows():
 #     "ravi": ["Assam", "Bihar"],
 #     "ravi1": ["Bihar"],
 # }
-
-
-#######---- mannula username & password entry -----------
 
 # Hash passwords once
 hashed_passwords = stauth.Hasher(
@@ -143,7 +158,9 @@ else:
     st.sidebar.success(f"Welcome, {name}")
     authenticator.logout("Logout", "sidebar")
     allowed_state = user_state_map.get(username, "NONE")
-##### ------------- Username & password  and allowed states access via google sheets -----------------------
+
+
+##### ------------- User credentials and allowed states -----------------------
 
 
 
@@ -169,6 +186,12 @@ st_autorefresh(interval=3 * 60 * 60 * 1000, key="datarefresh")
 allowed_states = user_state_map.get(username, ["NONE"])
 if "ALL" not in allowed_states:
     df = df[df["State"].isin(allowed_states)]
+
+# if allowed_state != "ALL":
+#     df = df[df["State"] == allowed_state]
+
+# Optional success message
+# st.success(f"✅ Access granted for: {allowed_state}")
 
 
 
