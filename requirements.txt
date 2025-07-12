@@ -5,3 +5,4 @@ openpyxl
 streamlit-autorefresh
 pytz
 streamlit_authenticator
+collections
