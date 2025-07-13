@@ -2,16 +2,15 @@
 import streamlit as st
 import pandas as pd
 import plotly.express as px
-import base64
+from jarvis_logo import jarvis_logo
 from streamlit_autorefresh import st_autorefresh
 from datetime import datetime
 import pytz
 
 
-
+jarvis_png=jarvis_logo()
 comment_cols='Comments (by Gaurav Kumar)'
-
-import streamlit as st
+india_time = datetime.now(pytz.timezone('Asia/Kolkata')).strftime('%Y-%m-%d %H:%M:%S')
 
 # Wide layout ke liye
 st.set_page_config(
@@ -31,19 +30,6 @@ hide_github_only = """
 st.markdown(hide_github_only, unsafe_allow_html=True)
 
 
-# Image to base64
-def image_to_base64(img_path):
-    with open(img_path, "rb") as image_file:
-        return base64.b64encode(image_file.read()).decode()
-
-
-# Paths
-### jarvis_path = r"jarvis_Logo_.webp"
-jarvis_path = r"jarvis_Logo_1.png"
-jarvis_base64 = image_to_base64(jarvis_path)
-
-
-india_time = datetime.now(pytz.timezone('Asia/Kolkata')).strftime('%Y-%m-%d %H:%M:%S')
 
 #### ------ Page View ------
 ### Page Config
@@ -63,7 +49,7 @@ st.markdown("""
 ##### ------ Header UI jarvis logo  Communication Dashboard ----------
 st.markdown(f"""
     <div style='margin-top: 1rem; display: flex; align-items: center; justify-content: space-between; padding: 0.1px 20px;'>
-        <div><img src='data:image/webp;base64,{jarvis_base64}' width='55'/></div>
+        <div><img src='data:image/webp;base64,{jarvis_png}' width='55'/></div>
         <div style='text-align: center; flex-grow: 1;'>
             <span style='font-size: 28px; font-weight: bold;
                 background: linear-gradient(90deg, #ff9900, #ff6600);
