@@ -1,5 +1,4 @@
 
-
 import streamlit as st
 import pandas as pd
 import plotly.express as px
@@ -11,6 +10,26 @@ import pytz
 
 
 comment_cols='Comments (by Gaurav Kumar)'
+
+import streamlit as st
+
+# Wide layout ke liye
+st.set_page_config(
+    page_title="Mera Dashboard",
+    layout="wide"
+)
+
+# CSS to hide only GitHub button
+hide_github_only = """
+    <style>
+    /* Hide only GitHub/Fork button from top-right */
+    a[href^="https://github.com"] {
+        visibility: hidden;
+    }
+    </style>
+"""
+st.markdown(hide_github_only, unsafe_allow_html=True)
+
 
 # Image to base64
 def image_to_base64(img_path):
