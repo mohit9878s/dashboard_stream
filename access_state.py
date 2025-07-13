@@ -163,6 +163,14 @@ if allowed_states != "ALL":
 state_info = ", ".join(allowed_states) if allowed_states != "ALL" else "ALL States"
 st.sidebar.success(f"✅ State Access for: {state_info}")
 
+if st.session_state.access_granted:
+    if st.sidebar.button("Sign Out"):
+        st.session_state.access_granted = False
+        st.session_state.access_code = ""
+        st.session_state.allowed_states = []
+        st.rerun()
+
+
 ######---------------------- ✅ 1. Load User Access Sheet ###### --------------
 
 
