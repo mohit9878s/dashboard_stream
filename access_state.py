@@ -364,8 +364,7 @@ if comm_selected:
     filtered_df = filtered_df[filtered_df["Type of Communication"].isin(comm_selected)]
 
 
-
-st.write("")
+## st.write("")
 ######---- Summary Table Add columns Success (%) and comment -----
 if not filtered_df.empty:
     group_by = st.selectbox("📂 Group Data By", ["Vendor Name", "State", "Cohort","Election Type"])
@@ -433,7 +432,6 @@ if not filtered_df.empty:
     display_df.index = range(1, len(display_df) + 1)
     st.dataframe(display_df, use_container_width=True)
 
-
     # Chart
     chart_data = summary.copy().sort_values("Success %", ascending=False)
     chart_data["Success %"] = chart_data["Success %"].apply(lambda x: f"{x:.0f} %")
@@ -451,7 +449,6 @@ if not filtered_df.empty:
         title=f"{group_by}-wise Success %",
         custom_data=["Total Data (Compact)", "Total Success (Compact)"]
     )
-
 
     fig.update_traces(
         texttemplate="<b>%{text}</b>",
