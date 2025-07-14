@@ -126,7 +126,7 @@ if not st.session_state.access_granted:
             # ✅ Check if user is disabled
             if mode_map.get(access_code_input, "enable") == "disable":
                 st.error("🚫 Your access is currently disabled. Please contact admin.")
-                # st.stop()
+                st.stop()
 
             # ✅ Grant access
             st.session_state.access_granted = True
