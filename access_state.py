@@ -108,7 +108,19 @@ if not st.session_state.access_granted:
     col_left, col_center, col_right = st.columns([1, 2, 1])
 
     with col_center:
-        st.markdown("### 🔐 Enter Access Code to Continue")
+        #st.markdown("### 🔐 Enter Access Code to Continue")
+        st.write("")
+        st.write("")
+        st.write("")
+        st.write("")
+        st.markdown("""
+            <div style='text-align: center; flex-grow: 1;'>
+                <span style='font-size: 32px; color: steelblue; font-weight: bold'>
+                    🔐 Enter Access Code
+                </span>
+            </div>
+        """, unsafe_allow_html=True)
+
 
         with st.form("login_form", clear_on_submit=True):
             access_code_input = st.text_input(
