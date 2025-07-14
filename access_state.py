@@ -1,5 +1,4 @@
-
-import streamlit as st
+import streamlit as st, time
 import pandas as pd
 import plotly.express as px
 from streamlit_autorefresh import st_autorefresh
@@ -19,14 +18,13 @@ st.set_page_config(page_title="Communication Dashboard", layout="wide", initial_
 st.markdown("""
     <style>
         .block-container {
-            padding-top: 0.8rem !important;
+            padding-top: 1rem !important;
         }
     </style>
 """, unsafe_allow_html=True)
 
-
 st.markdown(f"""
-    <div style='margin-top: 1rem; display: flex; align-items: center; justify-content: space-between; padding: 0.1px 25px;'>
+    <div style='margin-top: 1rem; display: flex; align-items: center; justify-content: space-between; padding: 0.1px 40px;'>
         <div><img src='data:image/webp;base64,{jarvis_png}' width='55'/></div>
         <div style='text-align: center; flex-grow: 1;'>
             <span style='font-size: 28px; font-weight: bold;
@@ -39,7 +37,6 @@ st.markdown(f"""
         <div></div>
     </div>
 """, unsafe_allow_html=True)
-
 
 ###### -------- Google Sheet read ------------
 sheet_url = "https://docs.google.com/spreadsheets/d/1PAmuXQHqkVE5r0OjMwyvlxDS-O4e8CzBo8auI4uVYCA/edit#gid=1379708796"
@@ -55,21 +52,18 @@ def load_data(sheet_url):
 df = load_data(sheet_url)
 if df is None:
     st.stop()
-# Auto App refresh every 3 hours
-st_autorefresh(interval=3 * 60 * 60 * 1000, key="datarefresh")
+
 ###### -------- Google Sheet read ------------
 
 
 ######---------------------- ✅ 1. Load User Access Sheet ###### --------------
-
 ###### ✅ 1. Load User Access Sheet ######
 user_sheet_url = "https://docs.google.com/spreadsheets/d/1PAmuXQHqkVE5r0OjMwyvlxDS-O4e8CzBo8auI4uVYCA/edit#gid=1217256347"
-
-@st.cache_data(ttl=60)
+@st.cache_data(ttl=5)
 def load_user_data(sheet_url):
     try:
         csv_export_url = sheet_url.replace("/edit#gid=", "/export?format=csv&gid=")
-        df = pd.read_csv(csv_export_url, usecols=["password", "access state"]).dropna()
+        df = pd.read_csv(csv_export_url, usecols=["password", "access state", "mode"]).dropna()
         return df
     except Exception as e:
         st.error(f"❌ Failed to load user credentials: {e}")
@@ -80,9 +74,12 @@ if user_df.empty:
     st.stop()
 
 access_map = {}
+mode_map = {}
+
 for _, row in user_df.iterrows():
     password = str(row["password"]).strip()
     state = str(row["access state"]).strip()
+    mode = str(row["mode"]).strip().lower()
 
     if password in access_map:
         if access_map[password] != "ALL":
@@ -92,6 +89,8 @@ for _, row in user_df.iterrows():
             access_map[password] = "ALL"
         else:
             access_map[password] = {state}
+
+    mode_map[password] = mode
 
 # Convert sets to lists
 for key in access_map:
@@ -106,7 +105,6 @@ if "access_granted" not in st.session_state:
 
 # 🔐 Login Form
 if not st.session_state.access_granted:
-
     col_left, col_center, col_right = st.columns([1, 2, 1])
 
     with col_center:
@@ -122,8 +120,15 @@ if not st.session_state.access_granted:
             )
 
             login_clicked = st.form_submit_button("Login")
+
     if login_clicked:
         if access_code_input in access_map:
+            # ✅ Check if user is disabled
+            if mode_map.get(access_code_input, "enable") == "disable":
+                st.error("🚫 Your access is currently disabled. Please contact admin.")
+                # st.stop()
+
+            # ✅ Grant access
             st.session_state.access_granted = True
             st.session_state.access_code = access_code_input
             st.session_state.allowed_states = access_map[access_code_input]
@@ -131,8 +136,35 @@ if not st.session_state.access_granted:
             st.rerun()
         else:
             st.warning("🚫 Invalid access code.")
-
     st.stop()
+
+# ✅ After login: continuously check mode and auto-logout if disabled
+# ---------------------------------------------------------------
+# Re-load Google Sheet to get latest mode info
+user_df = load_user_data(user_sheet_url)
+user_df.columns = user_df.columns.str.strip().str.lower()
+mode_map = {str(row["password"]).strip(): str(row["mode"]).strip().lower() for _, row in user_df.iterrows()}
+
+# Check if user’s mode is now disabled
+access_code = st.session_state.access_code
+current_mode = mode_map.get(access_code, "enable")
+
+if current_mode == "disable":
+    st.error("🚫 Your access has been disabled by admin. Logging out...")
+    st.session_state.access_granted = False
+    st.session_state.access_code = ""
+    st.session_state.allowed_states = []
+    time.sleep(1)
+    st.rerun()
+
+
+
+# ###------ ✅ Display Show welcome and state info -----------------------------
+# st.sidebar.success(f"✅ Logged in as: {user_name}")
+# state_info = ", ".join(allowed_states) if allowed_states != "ALL" else "ALL States"
+# st.sidebar.success(f"📍 State Access: {state_info}")
+# ###------ ✅ Display Show welcome and state info -----------------------------
+
 
 # ✅ Access already granted — filter and show dashboard
 access_code = st.session_state.access_code
@@ -144,7 +176,6 @@ if allowed_states != "ALL":
     df = df[df["State"].isin(allowed_states)]
 
 ######---------------------- ✅ 1. Load User Access Sheet ###### --------------
-
 # Required columns check
 required_columns = ["State", "Vendor Name", "Type of Communication", "Cohort","Election Type" ,"Total Phone Numbers", "Total Success"]
 missing_columns = [col for col in required_columns if col not in df.columns]
@@ -190,6 +221,7 @@ with st.sidebar:
         compact_style = "compact"
     st.markdown("#### 📊 Dashboard Update")
     if st.button("🔄 Click Refresh"):
+        st.session_state.manual_refresh = True
         st.cache_data.clear()
         st.rerun()
 #########  Number Decimal Format & Dashboard Update ---------
@@ -333,7 +365,7 @@ if comm_selected:
 
 
 
-
+st.write("")
 ######---- Summary Table Add columns Success (%) and comment -----
 if not filtered_df.empty:
     group_by = st.selectbox("📂 Group Data By", ["Vendor Name", "State", "Cohort","Election Type"])
@@ -377,13 +409,13 @@ if not filtered_df.empty:
     if comm_selected:
         filtered_df.append(f"<span style='color:#FF00FF;'>Communication:</span> {', '.join(comm_selected)}")
     if filtered_df:
-        st.markdown("#### 🔎 Filters Applied:")
+        st.markdown("##### Filters Applied:")
         for f in filtered_df:
             st.markdown(f"<p>{f}</p>", unsafe_allow_html=True)
 ### --- Applied Filters Display ----
 
 
-    st.markdown("#### 📋 Summary Table")
+    st.markdown("##### 📋 Summary Table")
     display_df = summary.copy()
     if compact_style == "compact":
         display_df["Total Phone Numbers"] = summary["Total Phone Numbers"].apply(format_compact_decimal)
@@ -448,3 +480,11 @@ if not filtered_df.empty:
 else:
     st.info("📌 Not enough data to display summary or metrics.")
 
+###------ ⏱️ Refresh every 60000 milliseconds (60 seconds = 1 minute)
+# st_autorefresh(interval=60000, key="auto_logout_refresh")
+
+###------ ⏱️ 10 seconds = 10,000 milliseconds
+# st_autorefresh(interval=10000, key="auto_logout_refresh")
+
+###------⏱️ 1 hour = 3600000 milliseconds
+st_autorefresh(interval=3600000, key="auto_logout_refresh")
