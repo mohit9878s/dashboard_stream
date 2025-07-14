@@ -363,8 +363,7 @@ if selected_cohorts:
 if comm_selected:
     filtered_df = filtered_df[filtered_df["Type of Communication"].isin(comm_selected)]
 
-
-## st.write("")
+st.write("")
 ######---- Summary Table Add columns Success (%) and comment -----
 if not filtered_df.empty:
     group_by = st.selectbox("📂 Group Data By", ["Vendor Name", "State", "Cohort","Election Type"])
