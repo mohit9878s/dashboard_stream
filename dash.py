@@ -1,4 +1,3 @@
-
 import streamlit as st
 import pandas as pd
 import plotly.express as px
@@ -6,6 +5,7 @@ from jarvis_logo import jarvis_logo
 from streamlit_autorefresh import st_autorefresh
 from datetime import datetime
 import pytz
+from collections import defaultdict
 
 
 jarvis_png=jarvis_logo()
@@ -13,25 +13,19 @@ comment_cols='Comments (by Gaurav Kumar)'
 india_time = datetime.now(pytz.timezone('Asia/Kolkata')).strftime('%Y-%m-%d %H:%M:%S')
 
 # Wide layout ke liye
-st.set_page_config(
-    page_title="Mera Dashboard",
-    layout="wide"
-)
+st.set_page_config( page_title="Mera Dashboard",    layout="wide" )
 
-
-#### ------ Page View ------
-### Page Config
+#### ------ Page Config View ------
 st.set_page_config(page_title="Communication Dashboard", layout="wide", initial_sidebar_state='auto')
 ### Reduce top blank space using custom CSS
 st.markdown("""
     <style>
         .block-container {
-            padding-top: 0.8rem !important;
+            padding-top: 1rem !important;
         }
     </style>
 """, unsafe_allow_html=True)
-#### ------ Page View ------
-
+#### ------ Page Config View ------
 
 
 ##### ------ Header UI jarvis logo  Communication Dashboard ----------
@@ -51,44 +45,39 @@ st.markdown(f"""
 """, unsafe_allow_html=True)
 ##### ------ Header UI jarvis logo  Communication Dashboard ----------
 
+# Auto App refresh every 3 hours
+st_autorefresh(interval=3 * 60 * 60 * 1000, key="datarefresh")
 
-##### ------ Excel csv file read -------------
-# @st.cache_data(ttl=60)      # Load Excel with auto-refresh every 60 seconds
-# def load_data():
-#     try:
-#         df = pd.read_csv(r"data.csv")
-#         required = ["State", "Vendor Name", "Type of Communication", "Cohort", "Total Phone Numbers", "Total Success"]
-#         if not all(col in df.columns for col in required):
-#             st.error("Excel file missing required columns.")
-#             return None
-#         return df
-#     except Exception as e:
-#         st.error(f"Error loading Excel: {e}")
-#         return None
-# df = load_data()
-# if df is None:
-#     st.stop()
-##### ------ Excel csv file read -------------
-
-###### -------- Google Sheet read ------------
-sheet_url = "https://docs.google.com/spreadsheets/d/1PAmuXQHqkVE5r0OjMwyvlxDS-O4e8CzBo8auI4uVYCA/edit#gid=1379708796"
+###### ----- data read ------------- Google Sheet  ------------
+###### ----- data read ------------- Google Sheet  ------------
+###### ----- data read ------------- Google Sheet  ------------
 @st.cache_data(ttl=60)
 def load_data(sheet_url):
     try:
         csv_export_url = sheet_url.replace("/edit#gid=", "/export?format=csv&gid=")
         df = pd.read_csv(csv_export_url)
+        df.columns=df.columns.str.strip()
         return df
     except Exception as e:
         st.error(f"❌ Failed to fetch data: {e}")
         return None
-df = load_data(sheet_url)
+
+dashboard_data = "https://docs.google.com/spreadsheets/d/1PAmuXQHqkVE5r0OjMwyvlxDS-O4e8CzBo8auI4uVYCA/edit#gid=1379708796"
+### dashboard_data_columns=['State', 'Type of Communication', 'Vendor Name', 'Election Type', 'Cohort', 'Total Phone Numbers', 'Total Success']
+df = load_data(dashboard_data)
 if df is None:
     st.stop()
-###### -------- Google Sheet read ------------
 
 
-# Auto App refresh every 3 hours
-st_autorefresh(interval=3 * 60 * 60 * 1000, key="datarefresh")
+comment_remark = "https://docs.google.com/spreadsheets/d/1PAmuXQHqkVE5r0OjMwyvlxDS-O4e8CzBo8auI4uVYCA/edit#gid=1826238917"
+### comment_remark_columns=['Type of Communication','Vendor','Percentage Range', 'Comment Remark']
+remark_df = load_data(comment_remark)
+if remark_df is None:
+    st.stop()
+###### ----- data read ------------- Google Sheet  ------------
+###### ----- data read ------------- Google Sheet  ------------
+###### ----- data read ------------- Google Sheet  ------------
+
 
 # Required columns check
 required_columns = ["State", "Vendor Name", "Type of Communication", "Cohort","Election Type" ,"Total Phone Numbers", "Total Success"]
@@ -103,6 +92,11 @@ with st.sidebar:
     comm_options = sorted(df["Type of Communication"].dropna().unique())
     select_all = st.checkbox("Select All Communication Types")
     comm_selected = comm_options if select_all else st.pills("Filter Communication Types", comm_options, selection_mode="multi")
+
+with st.sidebar:
+    # st.markdown("#### 🧾 Options")
+    show_remarks = st.toggle("Show Vendor-wise Remarks", value=False)
+    # st.warning("Please select **only one Communication Type (OBD or WhatsApp)** to view remarks.")
 
 
 ####--- 1 --- Sidebar - Other filters -----
@@ -126,55 +120,6 @@ with st.sidebar:
         selected_cohorts = st.multiselect("🎯 Cohort", cohort_options, default=st.session_state.cohort_filter, key="cohort_filter")
 #####--- 1 --- Sidebar - Other filters -----
 
-########---- 2 --- check box Select All & unselect -------
-# with st.sidebar:
-#     with st.expander("🎛️ Apply Filters", expanded=True):
-#         # ------------ 📍 State Filter ------------
-#         state_options = sorted(df["State"].dropna().unique())
-#         if "selected_states" not in st.session_state:
-#             st.session_state.selected_states = []
-#         if "select_all_states" not in st.session_state:
-#             st.session_state.select_all_states = False
-#         def toggle_states():
-#             if st.session_state.select_all_states:
-#                 st.session_state.selected_states = state_options
-#             else:
-#                 st.session_state.selected_states = []
-#         st.checkbox(" Select All States", value=st.session_state.select_all_states, key="select_all_states", on_change=toggle_states)
-#         selected_states = st.multiselect("📍 State", state_options, default=st.session_state.selected_states, key="state_multi")
-#         st.session_state.selected_states = selected_states
-#         # ------------ 🏷️ Vendor Filter ------------
-#         vendor_options = sorted(df["Vendor Name"].dropna().unique())
-#         if "selected_vendors" not in st.session_state:
-#             st.session_state.selected_vendors = []
-#         if "select_all_vendors" not in st.session_state:
-#             st.session_state.select_all_vendors = False
-#         def toggle_vendors():
-#             if st.session_state.select_all_vendors:
-#                 st.session_state.selected_vendors = vendor_options
-#             else:
-#                 st.session_state.selected_vendors = []
-#         st.checkbox(" Select All Vendors", value=st.session_state.select_all_vendors, key="select_all_vendors", on_change=toggle_vendors)
-#         selected_vendors = st.multiselect("🏷️ Vendor", vendor_options, default=st.session_state.selected_vendors, key="vendor_multi")
-#         st.session_state.selected_vendors = selected_vendors
-#         # ------------ 🎯 Cohort Filter ------------
-#         cohort_options = sorted(df["Cohort"].dropna().unique())
-#         if "selected_cohorts" not in st.session_state:
-#             st.session_state.selected_cohorts = []
-#         if "select_all_cohorts" not in st.session_state:
-#             st.session_state.select_all_cohorts = False
-#         def toggle_cohorts():
-#             if st.session_state.select_all_cohorts:
-#                 st.session_state.selected_cohorts = cohort_options
-#             else:
-#                 st.session_state.selected_cohorts = []
-#         st.checkbox(" Select All Cohorts", value=st.session_state.select_all_cohorts, key="select_all_cohorts", on_change=toggle_cohorts)
-#         selected_cohorts = st.multiselect("🎯 Cohort", cohort_options, default=st.session_state.selected_cohorts, key="cohort_multi")
-#         st.session_state.selected_cohorts = selected_cohorts
-########---- 2 --- check box Select All & unselect -------
-
-
-
 #########  Number Decimal Format & Dashboard Update ---------
 with st.sidebar:
     st.markdown("---")
@@ -182,17 +127,11 @@ with st.sidebar:
     format_option = st.pills("Show Number Format As", ["Decimal Format ( e.g. 1.1 : K, L, Cr )"])
     if format_option:
         compact_style = "compact"
-
-
     st.markdown("#### 📊 Dashboard Update")
     if st.button("🔄 Click Refresh"):
         st.cache_data.clear()
         st.rerun()
 #########  Number Decimal Format & Dashboard Update ---------
-
-
-
-
 # Format functions
 def format_indian_number(n):
     s = str(int(n))
@@ -219,98 +158,8 @@ def format_compact_decimal(n):
         return f"{int(n / 10) / 100:.2f} K"
     return str(n)
 
-
-# Accurate Vendor-wise Comment Function
-def get_comment(success_pct, vendor, comm_type):
-    vendor = vendor.strip().lower()
-    comm_type = comm_type.strip().lower()
-    pct = round(success_pct)
-
-
-    rr_vendors = ["rr communication", "go2market", "half circle", "cosmic", "inbox media"]
-    sarv_vendors = ["sarv", "jio"]
-    riddhi_vendors = ["riddhi tech"]
-    netcore_vendors = ["netcore"]
-    whatsapp_vendors = ["vphone", "inbox media"]
-
-
-    if comm_type == "obd":
-        if vendor in rr_vendors:
-            if 0 <= pct <= 35:
-                return "Run with No retries"
-            elif 36 <= pct <= 60:
-                return "Runs perfectly with 3 retries"
-            elif 61 <= pct <= 75:
-                return "5% chances of fraud"
-            elif 76 <= pct <= 90:
-                return "10% chances of fraud"
-            elif 91 <= pct <= 100:
-                return "15% chances of fraud"
-
-
-        elif vendor in sarv_vendors:
-            if 0 <= pct <= 35:
-                return "Run with No retries"
-            elif 36 <= pct <= 55:
-                return "Runs perfectly with 3 retries"
-            elif 56 <= pct <= 65:
-                return "5% chances of fraud"
-            elif 66 <= pct <= 80:
-                return "10% chances of fraud"
-            elif 81 <= pct <= 100:
-                return "15% chances of fraud"
-
-
-        elif vendor in riddhi_vendors:
-            if 0 <= pct <= 25:
-                return "100% DND scrubbing"
-            elif 26 <= pct <= 37:
-                return "50% DND Scrubbing"
-            elif 38 <= pct <= 60:
-                return "Runs perfectly with 3 retries"
-            elif 61 <= pct <= 70:
-                return "5% chances of fraud"
-            elif 71 <= pct <= 80:
-                return "10% chances of fraud"
-            elif 81 <= pct <= 100:
-                return "15% chances of fraud"
-
-
-        elif vendor in netcore_vendors:
-            if 0 <= pct <= 20:
-                return "100% DND scrubbing"
-            elif 21 <= pct <= 30:
-                return "80% DND Scrubbing"
-            elif 31 <= pct <= 40:
-                return "50% DND Scrubbing"
-            elif 41 <= pct <= 60:
-                return "Runs perfectly with 3 retries"
-            elif 61 <= pct <= 70:
-                return "5% chances of fraud"
-            elif 71 <= pct <= 80:
-                return "10% chances of fraud"
-            elif 81 <= pct <= 100:
-                return "15% chances of fraud"
-
-
-    elif comm_type == "whatsapp":
-        if vendor in whatsapp_vendors:
-            if 0 <= pct <= 30:
-                return "Runs on only 50% Data"
-            elif 31 <= pct <= 50:
-                return "Run on only 75% Data"
-            elif 51 <= pct <= 82:
-                return "Runs perfectly"
-            elif 83 <= pct <= 90:
-                return "5% chances of fraud"
-            elif 91 <= pct <= 100:
-                return "10% chances of fraud"
-    return "-"
-
-
 #### -----    Apply Filters
 filtered_df = df.copy()
-
 if selected_elections:
     filtered_df = filtered_df[filtered_df["Election Type"].isin(selected_elections)]
 if selected_states:
@@ -322,20 +171,74 @@ if selected_cohorts:
 if comm_selected:
     filtered_df = filtered_df[filtered_df["Type of Communication"].isin(comm_selected)]
 
+########-------- vendor comment function-------------
+########-------- vendor comment function-------------
+def get_comment(success_pct, vendor, comm_type, remark_df):
+    vendor = vendor.strip().lower()
+    comm_type = comm_type.strip().lower()
+    pct = round(success_pct)
+
+    # Filter for matching communication type
+    df = remark_df[  remark_df["Type of Communication"].str.strip().str.lower() == comm_type  ]
+
+    if df.empty:
+        return "-"
+
+    matched_rows = df[df["Vendor"].str.strip().str.lower() == vendor]
+
+    if matched_rows.empty:
+        return "-"
+
+    for _, row in matched_rows.iterrows():
+        range_str = row["Percentage Range"]
+        remark = row["Comment Remark"]
+
+        # Parse range like "0-20 %" or "81-100 %" or "0-35 %"
+        try:
+            numbers = [int(s.strip().replace("%", "")) for s in range_str.split("-")]
+            if len(numbers) == 2 and numbers[0] <= pct <= numbers[1]:
+                return remark
+        except:
+            continue
+
+    return "-"
+########-------- vendor comment function-------------
+########-------- vendor comment function-------------
 
 
+#### ----------    Apply Filters Mode -----------------
+#### ----------    Apply Filters Mode -----------------
+filtered_df = df.copy()
+if selected_elections:
+    filtered_df = filtered_df[filtered_df["Election Type"].isin(selected_elections)]
+if selected_states:
+    filtered_df = filtered_df[filtered_df["State"].isin(selected_states)]
+if selected_vendors:
+    filtered_df = filtered_df[filtered_df["Vendor Name"].isin(selected_vendors)]
+if selected_cohorts:
+    filtered_df = filtered_df[filtered_df["Cohort"].isin(selected_cohorts)]
+if comm_selected:
+    filtered_df = filtered_df[filtered_df["Type of Communication"].isin(comm_selected)]
+#### ----------    Apply Filters Mode -----------------
+#### ----------    Apply Filters Mode -----------------
 
-######---- Summary Table Add columns Success (%) and comment -----
+
+######---- Summary Table Add columns Success (%) and comment ------------------
+######---- Summary Table Add columns Success (%) and comment ------------------
 if not filtered_df.empty:
     group_by = st.selectbox("📂 Group Data By", ["Vendor Name", "State", "Cohort","Election Type"])
     summary = filtered_df.groupby(group_by)[["Total Phone Numbers", "Total Success"]].sum().reset_index()
     summary["Success %"] = summary.apply(lambda row: (row["Total Success"] / row["Total Phone Numbers"] * 100)
                                         if row["Total Phone Numbers"] > 0 else 0, axis=1).round(2)
+    if isinstance(comm_selected, list) and len(comm_selected) == 1 and group_by == "Vendor Name":
+        comm = comm_selected[0]
+        summary[comment_cols] = summary.apply(
+            lambda row: get_comment(row["Success %"], row["Vendor Name"], comm, remark_df),
+            axis=1
+        )
+######---- Summary Table Add columns Success (%) and comment ------------------
+######---- Summary Table Add columns Success (%) and comment ------------------
 
-
-    # Apply accurate comment logic only when grouped by Vendor Name and communication selected
-    if len(comm_selected) == 1 and comm_selected[0] in ["OBD","WhatsApp"] and group_by == "Vendor Name":      #"WhatsApp"
-        summary[comment_cols] = summary.apply(lambda row: get_comment(row["Success %"], row["Vendor Name"], comm_selected[0]), axis=1)
 
 
     total_ph = filtered_df["Total Phone Numbers"].sum()
@@ -355,7 +258,8 @@ if not filtered_df.empty:
         st.markdown(f"<h4>{overall_pct:.0f} %</h4>", unsafe_allow_html=True)
 
 
-### --- Applied Filters Display ----
+###------ Applied Filters Display -------------
+###------ Applied Filters Display -------------
     filtered_df = []
     if selected_elections:
         filtered_df.append(f"<span style='color:#EF6C00;'>Election Type:</span> {', '.join(selected_elections)}")
@@ -368,15 +272,15 @@ if not filtered_df.empty:
     if comm_selected:
         filtered_df.append(f"<span style='color:#FF00FF;'>Communication:</span> {', '.join(comm_selected)}")
     if filtered_df:
-        st.markdown("#### 🔎 Filters Applied:")
+        st.markdown("###### 🔎 Filters Applied:")
         for f in filtered_df:
             st.markdown(f"<p>{f}</p>", unsafe_allow_html=True)
-### --- Applied Filters Display ----
+###------ Applied Filters Display -------------
+###------ Applied Filters Display -------------
 
-
-
-
-    st.markdown("### 📋 Summary Table")
+###------ Display Summary Table ----------------
+###------ Display Summary Table ----------------
+    st.markdown("###### 📋 Summary Table")
     display_df = summary.copy()
     if compact_style == "compact":
         display_df["Total Phone Numbers"] = summary["Total Phone Numbers"].apply(format_compact_decimal)
@@ -384,29 +288,20 @@ if not filtered_df.empty:
     else:
         display_df["Total Phone Numbers"] = summary["Total Phone Numbers"].apply(format_indian_number)
         display_df["Total Success"] = summary["Total Success"].apply(format_indian_number)
-
-
     display_df["Success %"] = summary["Success %"].apply(lambda x: f"{x:.0f} %")
     if comment_cols in summary.columns:
         display_df[comment_cols] = summary[comment_cols]
-
-
     display_df.index = range(1, len(display_df) + 1)
     st.dataframe(display_df, use_container_width=True)
+###------ Display Summary Table ----------------
+###------ Display Summary Table ----------------
 
-
-    # Chart
+###------ Display Bar Chart Summary Table ----------------
+###------ Display Bar Chart Summary Table ----------------
     chart_data = summary.copy().sort_values("Success %", ascending=False)
     chart_data["Success %"] = chart_data["Success %"].apply(lambda x: f"{x:.0f} %")
-
-
-
-
     chart_data["Total Data (Compact)"] = chart_data["Total Phone Numbers"].apply(format_compact_decimal)
     chart_data["Total Success (Compact)"] = chart_data["Total Success"].apply(format_compact_decimal)
-
-
-
 
     fig = px.bar(
         chart_data,
@@ -418,8 +313,6 @@ if not filtered_df.empty:
         title=f"{group_by}-wise Success %",
         custom_data=["Total Data (Compact)", "Total Success (Compact)"]
     )
-
-
     fig.update_traces(
         texttemplate="<b>%{text}</b>",
         textposition="inside",
@@ -430,8 +323,6 @@ if not filtered_df.empty:
             "Total Data: %{customdata[0]}<br>" +
             "Total Success: %{customdata[1]}<extra></extra>"
     )
-
-
     fig.update_layout(
         yaxis_title="Success %",
         xaxis_title=group_by,
@@ -447,9 +338,88 @@ if not filtered_df.empty:
 else:
     st.info("📌 Not enough data to display summary or metrics.")
 
+###------ Display Bar Chart Summary Table ----------------
+###------ Display Bar Chart Summary Table ----------------
 
+st.write("")
 
+#################-------Best----- toggle enable all types of work view vendor remarks -----------------------------------
+###########-------Display Vendors wise Comment remarks Summary -----------------------------------
+###########-------Display Vendors wise Comment remarks Summary -----------------------------------
+if show_remarks:
+    # Decide what types of communication to show
+    if isinstance(comm_selected, list) and len(comm_selected) > 0:
+        comm_types_to_show = comm_selected  # Show selected only
+    else:
+        # If nothing selected, show all
+        comm_types_to_show = remark_df["Type of Communication"].dropna().unique()
 
+    for comm_type in comm_types_to_show:
+        comm_data = remark_df[remark_df["Type of Communication"].str.lower() == comm_type.lower()]
+        if comm_data.empty:
+            continue
 
+        st.markdown(f"##### 📋 {comm_type} Vendor-wise Remarks")
 
+        # Group vendors with same remarks
+        remark_signature_map = defaultdict(list)
+        for vendor in comm_data["Vendor"].dropna().unique():
+            temp = comm_data[comm_data["Vendor"] == vendor]
+            pattern = tuple(zip(temp["Percentage Range"], temp["Comment Remark"]))
+            remark_signature_map[pattern].append(vendor)
 
+        # Build HTML Table
+        full_html = """
+        <style>
+        table.remark-table {
+            border-collapse: collapse;
+            width: 100%;
+            margin-bottom: 30px;
+            font-size: 15px;
+        }
+        table.remark-table th, table.remark-table td {
+            border: 1px solid #ccc;
+            padding: 2px;
+        }
+        table.remark-table th {
+            background-color: #f0f0f0;
+            text-align: center;
+        }
+        table.remark-table td.vendor-cell {
+            text-align: center;
+            vertical-align: middle;
+            font-weight: 600;
+            white-space: pre-wrap;
+            background-color: #f9f9f9;
+        }
+        </style>
+        <table class="remark-table">
+        <thead>
+        <tr>
+            <th>Vendor</th>
+            <th>Percentage Range</th>
+            <th>Comment Remark</th>
+        </tr>
+        </thead>
+        <tbody>
+        """
+
+        for pattern, vendor_list in remark_signature_map.items():
+            vendor_html = ",<br>".join(vendor_list)
+            rowspan = len(pattern)
+            first = True
+            for prange, comment in pattern:
+                full_html += "<tr>"
+                if first:
+                    full_html += f'<td class="vendor-cell" rowspan="{rowspan}">{vendor_html}</td>'
+                    first = False
+                full_html += f"<td>{prange}</td><td>{comment}</td></tr>"
+
+        full_html += "</tbody></table>"
+        st.markdown(full_html, unsafe_allow_html=True)
+else:
+    # with st.sidebar:
+    # st.info("Sidebar enable to view - 'Show Vendor-wise Remarks'  ")
+    st.write("")
+###########-------Display Vendors wise Comment remarks Summary -----------------------------------
+###########-------Display Vendors wise Comment remarks Summary -----------------------------------
