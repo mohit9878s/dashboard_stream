@@ -351,11 +351,16 @@ if show_remarks:
     if isinstance(comm_selected, list) and len(comm_selected) > 0:
         comm_types_to_show = comm_selected  # Show selected only
     else:
-        # If nothing selected, show all
         comm_types_to_show = remark_df["Type of Communication"].dropna().unique()
 
     for comm_type in comm_types_to_show:
         comm_data = remark_df[remark_df["Type of Communication"].str.lower() == comm_type.lower()]
+
+        # ✅ Apply vendor filter if vendors are selected
+        if selected_vendors:
+            selected_vendors_clean = [v.strip().lower() for v in selected_vendors]
+            comm_data = comm_data[comm_data["Vendor"].str.strip().str.lower().isin(selected_vendors_clean)]
+
         if comm_data.empty:
             continue
 
@@ -379,7 +384,7 @@ if show_remarks:
         }
         table.remark-table th, table.remark-table td {
             border: 1px solid #ccc;
-            padding: 2px;
+            padding: 4px;
         }
         table.remark-table th {
             background-color: #f0f0f0;
@@ -417,9 +422,8 @@ if show_remarks:
 
         full_html += "</tbody></table>"
         st.markdown(full_html, unsafe_allow_html=True)
+
 else:
-    # with st.sidebar:
-    # st.info("Sidebar enable to view - 'Show Vendor-wise Remarks'  ")
     st.write("")
 ###########-------Display Vendors wise Comment remarks Summary -----------------------------------
 ###########-------Display Vendors wise Comment remarks Summary -----------------------------------
