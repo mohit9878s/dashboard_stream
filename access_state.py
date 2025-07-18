@@ -1,6 +1,4 @@
 
-# V2 access
-
 import streamlit as st, pandas as pd, plotly.express as px, pytz, time
 from logo import  dashboard_logo, jarvis_logo
 from streamlit_autorefresh import st_autorefresh
@@ -387,8 +385,6 @@ with st.sidebar:
 
 
 
-
-
 #### ----------    Apply Filters Mode -----------------
 #### ----------    Apply Filters Mode -----------------
 filtered_df = df.copy()
@@ -409,7 +405,7 @@ filtered_vendors = ( filtered_df["Vendor Name"].dropna().str.strip().str.lower()
 #### ----------    Apply Filters Mode -----------------
 
 
-# st.write("")
+st.write("")
 
 
 ######---- Summary Table Add columns Success (%) and comment ------------------
@@ -434,7 +430,9 @@ if not filtered_df.empty:
     total_succ = filtered_df["Total Success"].sum()
     overall_pct = (total_succ / total_ph * 100) if total_ph else 0
 
-  col1, col2, col3 = st.columns(3)
+
+    col1, col2, col3 = st.columns(3)
+
     with col1:
         st.markdown(f"""
             <div style='line-height:0.5'>
@@ -460,6 +458,8 @@ if not filtered_df.empty:
                 <h4 style='margin-top:4px; color:green;'>{overall_pct:.0f} %</h4>
             </div>
         """, unsafe_allow_html=True)
+
+
 
 
 ###------ Applied Filters Display -------------
@@ -500,6 +500,7 @@ if not filtered_df.empty:
     summary["Total Success"] = pd.to_numeric(summary["Total Success"], errors='coerce')
     summary["Success %"] = pd.to_numeric(summary["Success %"], errors='coerce')
     summary.index = range(1, len(summary) + 1)
+
     # Step 2: Format visually using .style.format — doesn't affect sorting
     if compact_style == "compact":
         st.dataframe(
@@ -683,6 +684,7 @@ if st.session_state.access_granted:
 
 ###------ ⏱️ 10 seconds = 10,000 milliseconds
 # st_autorefresh(interval=10000, key="auto_logout_refresh")
+
 
 ###------⏱️ 1 hour = 3600000 milliseconds
 st_autorefresh(interval=3600000, key="auto_logout_refresh")
