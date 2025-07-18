@@ -6,7 +6,7 @@ from datetime import datetime
 from collections import defaultdict
 
 
-dash_logo   =   dashboard_logo()
+# dash_logo   =   dashboard_logo()
 jarvis_png  =   jarvis_logo()
 comment_cols='Comments (by Gaurav Kumar)'
 india_time = datetime.now(pytz.timezone('Asia/Kolkata')).strftime('%Y-%m-%d %H:%M:%S')
@@ -201,18 +201,20 @@ if "access_granted" not in st.session_state:
 if not st.session_state.access_granted:
     
     # ✅ Transparent Background Image applied to full app
-    st.markdown(f"""
-        <style>
-        .stApp {{
-            background-image: url("data:image/png;base64,{dash_logo}");
-            background-repeat: no-repeat;
-            background-position: center;
-            background-size: 42%;
-            opacity: 10;  /* Adjust transparency here */
-        }}
-        </style>
-    """, unsafe_allow_html=True)
+    # ✅ Transparent Background Image applied to full app
+    # st.markdown(f"""
+    #     <style>
+    #     .stApp {{
+    #         background-image: url("data:image/png;base64,{dash_logo}");
+    #         background-repeat: no-repeat;
+    #         background-position: center;
+    #         background-size: 42%;
+    #         opacity: 10;  /* Adjust transparency here */
+    #     }}
+    #     </style>
+    # """, unsafe_allow_html=True)
 
+    
     # 🔐 Login UI
     col_left, col_center, col_right = st.columns([1, 2, 1])
     with col_center:
