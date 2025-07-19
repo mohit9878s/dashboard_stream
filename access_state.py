@@ -102,7 +102,7 @@ access_user_state   = "https://docs.google.com/spreadsheets/d/1PAmuXQHqkVE5r0OjM
 
 ### dashboard_data_columns=['State', 'Type of Communication', 'Vendor Name', 'Election Type', 'Cohort', 'Total Phone Numbers', 'Total Success']
 df = load_data(dashboard_data)
-df['State']=df['State'].dropna()
+df = df.dropna(subset=['State'])
 if df is None:
     st.stop()
 
