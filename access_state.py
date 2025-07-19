@@ -136,7 +136,7 @@ st.set_page_config(page_title="Communication Dashboard", layout="wide", initial_
 st.markdown("""
     <style>
         .block-container {
-            padding-top: 1rem !important;
+            padding-top: 0.9rem !important;
         }
     </style>
 """, unsafe_allow_html=True)
