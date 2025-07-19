@@ -432,7 +432,7 @@ if not filtered_df.empty:
             <div style="font-size: 18px; font-weight: bold; color: #1f4e79; margin-bottom: 12px;">
                 📈 Overall Success %
             </div>
-            <div style='font-size: 40px; font-weight: 650; color:  #80C99F;'>{overall_pct:.0f}%</div>
+            <div style='font-size: 35px; font-weight: 650; color:  #80C99F;'>{overall_pct:.0f}%</div>
         </div>
         """, unsafe_allow_html=True)
 
