@@ -195,71 +195,11 @@ if "access_granted" not in st.session_state:
     st.session_state.allowed_states = []
 
 # 🔐 Login Form
-if "access_granted" not in st.session_state:
-    st.session_state.access_granted = False
-
 if not st.session_state.access_granted:
-    
-    # ✅ Transparent Background Image applied to full app
-    # ✅ Transparent Background Image applied to full app
-    # st.markdown(f"""
-    #     <style>
-    #     .stApp {{
-    #         background-image: url("data:image/png;base64,{dash_logo}");
-    #         background-repeat: no-repeat;
-    #         background-position: center;
-    #         background-size: 42%;
-    #         opacity: 10;  /* Adjust transparency here */
-    #     }}
-    #     </style>
-    # """, unsafe_allow_html=True)
-
-    
-    # 🔐 Login UI
-    col_left, col_center, col_right = st.columns([1, 2, 1])
-    with col_center:
-        st.markdown("""
-            <div style='text-align: center;'>
-                <span style='font-size: 35px; color: steelblue; font-weight: bold'>
-                    🔐 Enter Access Code
-                </span>
-            </div>
-        """, unsafe_allow_html=True)
-
-        # st.markdown("""
-        #     <style>
-        #     input[type="password"] {
-        #         border: 2px solid #FFA500;  /* Orange border */
-        #         border-radius: 6px;
-        #         padding: 8px;
-        #         font-size: 15px;
-        #         box-shadow: 100px 0 80px rgba(255, 165, 0, 0.7);  /* Orange glow */
-        #     }
-        #     </style>
-        # """, unsafe_allow_html=True)
-
-
-
-        with st.form("login_form", clear_on_submit=True):
-            access_code_input = st.text_input("Access Code", type="password", placeholder="Enter your access code")
-            login_clicked = st.form_submit_button("Login")
-
-        st.markdown("</div>", unsafe_allow_html=True)
-    # Login check logic
-    if login_clicked:
-        if access_code_input in access_map:
-            if mode_map.get(access_code_input, "enable") == "disable":
-                st.error("🚫 Your access is currently disabled. Please contact admin.")
-                st.stop()
-            st.session_state.access_granted = True
-            st.session_state.access_code = access_code_input
-            st.session_state.allowed_states = access_map[access_code_input]
-            st.success("✅ Access granted! Dashboard unlocked.")
-            st.rerun()
-        else:
-            st.warning("🚫 Invalid access code.")
-    st.stop()
-
+    ## ✅ Background Image applied app
+    ## Optional: Check if dash_logo exists
+    if "dash_logo" in globals():
+        pass                        # or st.image(dash_logo)
 
     col_left, col_center, col_right = st.columns([1, 2, 1])
 
@@ -267,8 +207,36 @@ if not st.session_state.access_granted:
         #st.markdown("### 🔐 Enter Access Code to Continue")
         st.write("")
         st.write("")
-        st.write("")
-        st.write("")
+
+        # st.markdown("""
+        #                 <style>
+        #                 /* Style the password input box */
+        #                 div[data-testid="stTextInput"] {
+        #                     max-width: 250px !important;
+        #                     margin: 0 auto;  /* Center horizontally */
+        #                 }
+
+        #                 div[data-testid="stTextInput"] input {
+        #                     width: 100% !important;
+        #                     font-size: 12px;
+        #                     padding: 1x 10px;
+        #                     border-radius: 8px;
+        #                     border: 2px solid steelblue;
+        #                 }
+
+        #                 /* Style the outer login form box */
+        #                 div[data-testid="stForm"] {
+        #                     max-width: 350px;
+        #                     margin: 0 auto;
+        #                     padding: 0.5rem 3.5rem;
+        #                     border-radius: 10px;
+        #                     border: 2.5px solid #d9d9d9;
+        #                     box-shadow: 10px 10px 100px rgba(255,255,255,0.8);
+        #                     background-color: rgba(255, 255, 255, 0.85);
+        #                 }
+        #                </style>
+        #           """, unsafe_allow_html=True)
+
         st.markdown("""
             <div style='text-align: center; flex-grow: 1;'>
                 <span style='font-size: 32px; color: steelblue; font-weight: bold'>
@@ -285,25 +253,26 @@ if not st.session_state.access_granted:
                 placeholder="Enter your access code",
                 value="",
                 key="access_input_box"
-            )
-
+            )        
             login_clicked = st.form_submit_button("Login")
 
-    if login_clicked:
-        if access_code_input in access_map:
-            # ✅ Check if user is disabled
-            if mode_map.get(access_code_input, "enable") == "disable":
-                st.error("🚫 Your access is currently disabled. Please contact admin.")
-                st.stop()
-            # ✅ Grant access
-            st.session_state.access_granted = True
-            st.session_state.access_code = access_code_input
-            st.session_state.allowed_states = access_map[access_code_input]
-            st.success("✅ Access granted! Dashboard unlocked.")
-            st.rerun()
-        else:
-            st.warning("🚫 Invalid access code.")
-    st.stop()
+
+
+    # Login check logic
+        if login_clicked:
+            if access_code_input in access_map:
+                if mode_map.get(access_code_input, "enable") == "disable":
+                    st.error("🚫 Your access is currently disabled. Please contact admin.")
+                    st.stop()
+                st.session_state.access_granted = True
+                st.session_state.access_code = access_code_input
+                st.session_state.allowed_states = access_map[access_code_input]
+                st.success("✅ Access granted! Dashboard unlocked.")
+                st.rerun()
+            else:
+                st.warning("🚫 Invalid access code.")
+        st.stop()
+
 
 # ✅ After login: continuously check mode and auto-logout if disabled
 # ---------------------------------------------------------------
