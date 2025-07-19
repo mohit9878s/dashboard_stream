@@ -194,7 +194,7 @@ if "access_granted" not in st.session_state:
     st.session_state.access_code = ""
     st.session_state.allowed_states = []
 
-# 🔐 Login Form
+### 🔐 Login Form
 if not st.session_state.access_granted:
     ## ✅ Background Image applied app
     ## Optional: Check if dash_logo exists
@@ -207,7 +207,7 @@ if not st.session_state.access_granted:
         #st.markdown("### 🔐 Enter Access Code to Continue")
         st.write("")
         st.write("")
-
+        ### desing login box ##
         # st.markdown("""
         #                 <style>
         #                 /* Style the password input box */
@@ -236,6 +236,7 @@ if not st.session_state.access_granted:
         #                 }
         #                </style>
         #           """, unsafe_allow_html=True)
+        ### desing login box ##
 
         st.markdown("""
             <div style='text-align: center; flex-grow: 1;'>
