@@ -42,6 +42,7 @@ def format_indian_number(n):
     if rest:
         parts.insert(0, rest)
     return ",".join(parts) + "," + last_three
+    
 def format_compact_decimal(n):
     n = int(n)
     if n >= 1e7:
@@ -407,28 +408,32 @@ if not filtered_df.empty:
 
     with col1:
         st.markdown(f"""
-            <div style='line-height:0.5'>
-                <strong>📞 Total Phone Numbers</strong><br>
-                <h4 style='margin-top:4px'>{format_compact_decimal(total_ph)} 
-                <span style='color:steelblue;'>({format_indian_number(total_ph)})</span></h4>
+        <div style='text-align:center; line-height:1.1; margin-bottom: 0px;'>
+            <div style="font-size: 18px; font-weight: bold; color: #1f4e79; margin-bottom: 0px;">
+                📞 Total Phone Numbers
             </div>
+            <div style='font-size: 24px; font-weight: Bold; color: steelblue;'>{format_compact_decimal(total_ph)}</div>
+            <div style='font-size: 28px; font-weight: 600; color: steelblue;'>({format_indian_number(total_ph)})</div>
+        </div>
         """, unsafe_allow_html=True)
-
     with col2:
         st.markdown(f"""
-            <div style='line-height:0.5'>
-                <strong>☑️ Total Success</strong><br>
-                <h4 style='margin-top:4px'>{format_compact_decimal(total_succ)} 
-                <span style='color:orangered;'>({format_indian_number(total_succ)})</span></h4>
+        <div style='text-align:center; line-height:1.1; margin-bottom: 0px;'>
+            <div style="font-size: 18px; font-weight: bold; color: #1f4e79; margin-bottom: 0px;">
+                ☑️ Total Success
             </div>
+            <div style='font-size: 24px; font-weight: Bold; color: orangered;'>{format_compact_decimal(total_succ)}</div>
+            <div style='font-size: 28px; font-weight: 600; color: orangered;'>({format_indian_number(total_succ)})</div>
+        </div>
         """, unsafe_allow_html=True)
-
     with col3:
         st.markdown(f"""
-            <div style='line-height:0.5'>
-                <strong>📈 Overall Success %</strong><br>
-                <h4 style='margin-top:4px; color:green;'>{overall_pct:.0f} %</h4>
+        <div style='text-align:center; line-height:1.1; margin-bottom: 20px;'>
+            <div style="font-size: 18px; font-weight: bold; color: #1f4e79; margin-bottom: 12px;">
+                📈 Overall Success %
             </div>
+            <div style='font-size: 40px; font-weight: 650; color:  #80C99F;'>{overall_pct:.0f}%</div>
+        </div>
         """, unsafe_allow_html=True)
 
 
@@ -477,8 +482,8 @@ if not filtered_df.empty:
     if compact_style == "compact":
         st.dataframe(
             summary.style.format({
-                "Total Phone Numbers": lambda x: f"{x/1e7:.2f} Cr" if x >= 1e7 else f"{x/1e5:.2f} L",
-                "Total Success": lambda x: f"{x/1e7:.2f} Cr" if x >= 1e7 else f"{x/1e5:.2f} L",
+                "Total Phone Numbers": lambda x: format_compact_decimal(int(x)),
+                "Total Success": lambda x: format_compact_decimal(int(x)),
                 "Success %": "{:.0f} %"}),
             use_container_width=True)
     else:
