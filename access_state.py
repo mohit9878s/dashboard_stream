@@ -468,35 +468,6 @@ if not filtered_df.empty:
 ###------ Applied Filters Display -------------
 
 
-######------ Display 📋 Summary Table ----------------
-######------ Display 📋 Summary Table ----------------
-
-    st.markdown("##### 📋 Summary Table")
-    # Step 1: Keep the numeric base for sorting
-    summary["Total Phone Numbers"] = pd.to_numeric(summary["Total Phone Numbers"], errors='coerce')
-    summary["Total Success"] = pd.to_numeric(summary["Total Success"], errors='coerce')
-    summary["Success %"] = pd.to_numeric(summary["Success %"], errors='coerce')
-    summary.index = range(1, len(summary) + 1)
-
-    # Step 2: Format visually using .style.format — doesn't affect sorting
-    if compact_style == "compact":
-        st.dataframe(
-            summary.style.format({
-                "Total Phone Numbers": lambda x: format_compact_decimal(int(x)),
-                "Total Success": lambda x: format_compact_decimal(int(x)),
-                "Success %": "{:.0f} %"}),
-            use_container_width=True)
-    else:
-        st.dataframe(
-            summary.style.format({
-                "Total Phone Numbers": lambda x: format_indian_number(int(x)),
-                "Total Success": lambda x: format_indian_number(int(x)),
-                "Success %": "{:.0f} %"}),
-            use_container_width=True)        
-######------ Display 📋 Summary Table ----------------
-######------ Display 📋 Summary Table ----------------
-
-
 
 ###------ Display Bar Chart Summary Table ----------------
 ###------ Display Bar Chart Summary Table ----------------
@@ -536,10 +507,39 @@ if not filtered_df.empty:
         showlegend=False
     )
     st.plotly_chart(fig, use_container_width=True)
+###------ Display Bar Chart Summary Table ----------------
+###------ Display Bar Chart Summary Table ----------------
+
+######------ Display 📋 Summary Table ----------------
+######------ Display 📋 Summary Table ----------------
+
+    st.markdown("##### 📋 Summary Table")
+    # Step 1: Keep the numeric base for sorting
+    summary["Total Phone Numbers"] = pd.to_numeric(summary["Total Phone Numbers"], errors='coerce')
+    summary["Total Success"] = pd.to_numeric(summary["Total Success"], errors='coerce')
+    summary["Success %"] = pd.to_numeric(summary["Success %"], errors='coerce')
+    summary.index = range(1, len(summary) + 1)
+
+    # Step 2: Format visually using .style.format — doesn't affect sorting
+    if compact_style == "compact":
+        st.dataframe(
+            summary.style.format({
+                "Total Phone Numbers": lambda x: format_compact_decimal(int(x)),
+                "Total Success": lambda x: format_compact_decimal(int(x)),
+                "Success %": "{:.0f} %"}),
+            use_container_width=True)
+    else:
+        st.dataframe(
+            summary.style.format({
+                "Total Phone Numbers": lambda x: format_indian_number(int(x)),
+                "Total Success": lambda x: format_indian_number(int(x)),
+                "Success %": "{:.0f} %"}),
+            use_container_width=True)        
+######------ Display 📋 Summary Table ----------------
+######------ Display 📋 Summary Table ----------------
+
 else:
     st.info("📌 Not enough data to display summary or metrics.")
-###------ Display Bar Chart Summary Table ----------------
-###------ Display Bar Chart Summary Table ----------------
 
 st.write("")
 
