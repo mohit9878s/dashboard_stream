@@ -621,7 +621,7 @@ if show_remarks:
                 full_html += f"<td>{prange}</td><td>{comment}</td></tr>"
 
         full_html += "</tbody></table>"
-        st.markdown(full_html, unsafe_allow_html=False)
+        st.markdown(full_html, unsafe_allow_html=True)
 
 else:
     st.write("")
