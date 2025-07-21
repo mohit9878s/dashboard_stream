@@ -528,14 +528,14 @@ if not filtered_df.empty:
                 "Total Phone Numbers": lambda x: format_compact_decimal(int(x)),
                 "Total Success": lambda x: format_compact_decimal(int(x)),
                 "Success %": "{:.0f} %"}),
-            use_container_width=True)
+            use_container_width=False)
     else:
         st.dataframe(
             summary.style.format({
                 "Total Phone Numbers": lambda x: format_indian_number(int(x)),
                 "Total Success": lambda x: format_indian_number(int(x)),
                 "Success %": "{:.0f} %"}),
-            use_container_width=True)        
+            use_container_width=False)        
 ######------ Display 📋 Summary Table ----------------
 ######------ Display 📋 Summary Table ----------------
 
