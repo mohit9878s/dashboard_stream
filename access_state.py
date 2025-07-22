@@ -330,7 +330,7 @@ with st.sidebar:
 
    # st.markdown("### 📨 Type of Communication")
 comm_options = sorted(df["Type of Communication"].dropna().unique())
-comm_selected = st.pills("**Filter Communication Types**", comm_options, selection_mode="multi")
+comm_selected = st.pills("Filter Communication Types", comm_options, selection_mode="multi")
 
 
 ####--- 1 --- Sidebar - filters options -----
