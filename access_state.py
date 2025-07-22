@@ -6,9 +6,7 @@ from logo import  dashboard_logo, jarvis_logo
 from streamlit_autorefresh import st_autorefresh
 from datetime import datetime
 from collections import defaultdict
-import pydeck as pdk
 import streamlit.components.v1 as components
-from st_aggrid import AgGrid, GridOptionsBuilder, GridUpdateMode, JsCode
 
 
 jarvis_png  =   jarvis_logo()
