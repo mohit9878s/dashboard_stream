@@ -1,4 +1,3 @@
-
 # V2 access
 
 import streamlit as st, pandas as pd, plotly.express as px, pytz, time,base64
@@ -6,6 +5,7 @@ from logo import  dashboard_logo, jarvis_logo
 from streamlit_autorefresh import st_autorefresh
 from datetime import datetime
 from collections import defaultdict
+import pydeck as pdk
 import streamlit.components.v1 as components
 
 
@@ -110,28 +110,6 @@ def get_comment(success_pct, vendor, comm_type, remark_df):
             continue
 
     return "-"
-
-
-# not use  def dot_get_comment(success_percent, vendor_name, comm_type, remark_df):
-#     df = remark_df[
-#         (remark_df["Type of Communication"].str.lower() == comm_type.lower()) &
-#         (remark_df["Vendor"].str.lower().str.contains(vendor_name.lower()))
-#     ]
-
-#     remarks = []
-#     for _, row in df.iterrows():
-#         try:
-#             low, high = map(float, row["Percentage Range"].replace("%", "").split("-"))
-#             if low <= float(success_percent) <= high:
-#                 remarks.append(row["Comment Remark"])
-#         except:
-#             continue
-
-#     if remarks:
-#         return "\n• " + "\n• ".join(remarks)
-#     return "-"
-
-###### ------------- Vendor-wise Comment Function -------------
 #######---------- --------- Def Function --------------------#############
 #######---------- --------- Def Function --------------------#############
 ########--------- --------- Def Function --------------------#############
@@ -208,7 +186,21 @@ st.markdown(f"""
 ######## ------------------ Header Desingn -----------------------------
 ######## ------------------ Header Desingn -----------------------------
 
-
+######## ------------------ Page Line line Desingn -----------------------------
+######## ------------------ Page Line line Desingn -----------------------------
+st.markdown(
+    """
+    <div style="
+        height: 1.5px;
+        background: linear-gradient(90deg, #ff9900, #ff6600);
+        margin-top: 2px;
+        margin-bottom: 20px;
+        border-radius: 4px;">
+    </div>
+    """,
+    unsafe_allow_html=True)
+######## ------------------ Page Line line Desingn -----------------------------
+######## ------------------ Page Line line Desingn -----------------------------
 
 
 ###### ----- Enter Acces Code for State Type  ------------- Communication Dashboard   ------------
@@ -332,14 +324,14 @@ if missing_columns:
 
 # Sidebar - Communication Filter
 with st.sidebar:
-    st.markdown("### 📨 Type of Communication")
-    comm_options = sorted(df["Type of Communication"].dropna().unique())
-#    select_all = st.checkbox("Select All Communication Types")
-#   comm_selected = comm_options if select_all else st.pills("Filter Communication Types", comm_options, selection_mode="multi")
-    comm_selected = st.pills("Filter Communication Types", comm_options, selection_mode="multi")
+    group_by = st.selectbox("📂 Group Data By", ["Vendor Name", "State", "Cohort","Election Type"])
     show_remarks = st.toggle("Show Vendor-wise Remarks", value=False)
     # st.warning("Please select **only one Communication Type (OBD or WhatsApp)** to view remarks.")
-    
+
+    st.markdown("### 📨 Type of Communication")
+    comm_options = sorted(df["Type of Communication"].dropna().unique())
+    comm_selected = st.pills("Filter Communication Types", comm_options, selection_mode="multi")
+
 
 ####--- 1 --- Sidebar - filters options -----
 for key in ["election_filter","state_filter", "vendor_filter", "cohort_filter"]:
@@ -403,11 +395,11 @@ st.write("")
 
 ######---- Summary Table Add columns Success (%) and comment ------------------
 ######---- Summary Table Add columns Success (%) and comment ------------------
+
 if not filtered_df.empty:
-    group_by = st.selectbox("📂 Group Data By", ["Vendor Name", "State", "Cohort","Election Type"])
     summary = filtered_df.groupby(group_by)[["Total Phone Numbers", "Total Success"]].sum().reset_index()
     summary["Success %"] = summary.apply(lambda row: (row["Total Success"] / row["Total Phone Numbers"] * 100)
-                                        if row["Total Phone Numbers"] > 0 else 0, axis=1).round(2)
+                                            if row["Total Phone Numbers"] > 0 else 0, axis=1).round(2)
 
 
     if isinstance(comm_selected, list) and len(comm_selected) == 1 and group_by == "Vendor Name":
@@ -416,6 +408,25 @@ if not filtered_df.empty:
             lambda row: get_comment(row["Success %"], row["Vendor Name"], comm, remark_df),
             axis=1
         )
+
+    if group_by == "Vendor Name" and (not comm_selected or len(comm_selected) > 1):
+        # Get comma-separated communication types per vendor
+        comm_type_map = (
+            filtered_df.groupby("Vendor Name")["Type of Communication"]
+            .apply(lambda x: ", ".join(sorted(set(x.dropna()))))
+            .reset_index()
+            .rename(columns={"Type of Communication": "Type of Communication(s)"})
+        )
+        
+        # Merge with summary
+        summary = pd.merge(summary, comm_type_map, on="Vendor Name", how="left")
+        
+        # Reorder columns: Vendor Name, Type of Communication(s), then rest
+        cols = summary.columns.tolist()
+        if "Type of Communication(s)" in cols:
+            cols.insert(1, cols.pop(cols.index("Type of Communication(s)")))
+            summary = summary[cols]
+
 ######---- Summary Table Add columns Success (%) and comment ------------------
 ######---- Summary Table Add columns Success (%) and comment ------------------
 
@@ -500,7 +511,21 @@ if not filtered_df.empty:
     chart_data["Total Data (Compact)"] = chart_data["Total Phone Numbers"].apply(format_compact_decimal)
     chart_data["Total Success (Compact)"] = chart_data["Total Success"].apply(format_compact_decimal)
 
-    # Bar Chart
+    custom_data_fields = ["Total Data (Compact)", "Total Success (Compact)"]
+    if "Type of Communication(s)" in chart_data.columns:
+        custom_data_fields.append("Type of Communication(s)")
+
+#     st.markdown(f"""
+# <div style="background-color:#f0f2f6; border-radius:20px;
+#             padding: 6px 12px; margin-bottom: 10px;
+#             display: flex; align-items: center; justify-content: center;">
+#     <span style='font-size:20px; font-weight:650;'>
+#         📊 <span style='color:#387fc1; font-weight:700;'>{group_by}</span>
+#         <span style='font-weight:600; '>-wise Success % Chart</span>
+#     </span>
+# </div>
+# """, unsafe_allow_html=True)
+
     fig = px.bar(
         chart_data,
         x=group_by,
@@ -508,19 +533,40 @@ if not filtered_df.empty:
         text="Success %",
         color=group_by,
         color_continuous_scale="Viridis",
-        title=f"{group_by}-wise Success % Chart",
-        custom_data=["Total Data (Compact)", "Total Success (Compact)"]
+        custom_data=custom_data_fields
     )
+    fig.update_layout(title=None)
+    fig.update_layout(
+    title={
+        "text": f"""<span style='color:#387fc1;'><b>{group_by} </b></span><span style='font-weight:normal;'> -  wise Success % Chart</span>""",
+        "y": 0.97,
+        "x": 0.05,  # 👈 Align left
+        "xanchor": "left",
+        "yanchor": "top"
+    },
+    title_font=dict(size=24),
+    )
+
+
+    hovertemplate = ""
+    # If communication type exists, show it first
+    if "Type of Communication(s)" in custom_data_fields:
+        hovertemplate += "Type(s): %{customdata[2]}<br>"
+
+    hovertemplate += (
+        "Total Data: %{customdata[0]}<br>"
+        "Total Success: %{customdata[1]}<br>"
+        "<extra></extra>"
+    )
+    hovertemplate += "<extra></extra>"
+
     fig.update_traces(
         texttemplate="<b>%{text}</b>",
         textposition="inside",
         insidetextanchor="end",
-        hovertemplate=
-            group_by + ": %{x}<br>" +
-            "Success %: %{y}<br>" +
-            "Total Data: %{customdata[0]}<br>" +
-            "Total Success: %{customdata[1]}<extra></extra>"
+        hovertemplate=hovertemplate
     )
+
     fig.update_layout(
         yaxis_title="Success %",
         xaxis_title=group_by,
@@ -531,61 +577,10 @@ if not filtered_df.empty:
         showlegend=False
     )
 
+    
     st.plotly_chart(fig, use_container_width=True)
 ###------ Display Bar Chart Summary Table ----------------
 ###------ Display Bar Chart Summary Table ----------------
-
-
-
-
-
-
-
-
-
-
-#-------------------------------------------          Test  ------------------------------------------------
-
-
-
-
-#-------------------------------------------          Test  ------------------------------------------------
-
-
-
-######------ Display 📋 Summary Table ----------------
-######------ Display 📋 Summary Table ----------------
-    # st.markdown("##### 📋 Summary Table")
-    # # Step 1: Keep the numeric base for sorting
-    # summary["Total Phone Numbers"] = pd.to_numeric(summary["Total Phone Numbers"], errors='coerce')
-    # summary["Total Success"] = pd.to_numeric(summary["Total Success"], errors='coerce')
-    # summary["Success %"] = pd.to_numeric(summary["Success %"], errors='coerce')
-    # summary.index = range(1, len(summary) + 1)
-
-
-    # if compact_style == "compact":
-    #     st.dataframe(
-    #         summary.style.format({
-    #             "Total Phone Numbers": lambda x: format_compact_decimal(int(x)),
-    #             "Total Success": lambda x: format_compact_decimal(int(x)),
-    #             "Success %": "{:.0f} %"}),use_container_width=False)
-    # else:
-    #     st.dataframe(
-    #         summary.style.format({
-    #             "Total Phone Numbers": lambda x: format_indian_number(int(x)),
-    #             "Total Success": lambda x: format_indian_number(int(x)),
-    #             "Success %": "{:.0f} %"}),use_container_width=False)        
-
-# #####------ Display 📋 Summary Table ----------------
-# #####------ Display 📋 Summary Table ----------------
-
-
-
-# else:
-#     st.info("📌 Not enough data to display summary or metrics.")
-
-# st.write("")
-
 
 
 # Tabs: Conditionally show second tab
@@ -647,7 +642,7 @@ if not filtered_df.empty:
                     border-collapse: collapse;
                     width: 100%;
                     margin-bottom: 30px;
-                    font-size: 15px;
+                    font-size: 12px;
                 }
                 table.remark-table th, table.remark-table td {
                     border: 1px solid #ccc;
@@ -691,303 +686,10 @@ if not filtered_df.empty:
                 st.markdown(full_html, unsafe_allow_html=True)
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    # tab1, tab2 = st.tabs(["📊 Summary Table", "🗒️ Vendor-wise Remark Summary"])
-
-    # with tab1:
-    #     st.markdown("##### 📋 Summary Table")
-        
-    #     # Display summary in tab
-    #     if not summary.empty:
-    #         summary["Total Phone Numbers"] = pd.to_numeric(summary["Total Phone Numbers"], errors='coerce')
-    #         summary["Total Success"] = pd.to_numeric(summary["Total Success"], errors='coerce')
-    #         summary["Success %"] = pd.to_numeric(summary["Success %"], errors='coerce')
-    #         summary.index = range(1, len(summary) + 1)
-
-    #         # Show with custom formatting + bullets
-    #         # display_summary_table_with_bullets(summary, comment_cols, compact_style=compact_style)
-    #         if compact_style == "compact":
-    #             st.dataframe(
-    #                 summary.style.format({
-    #                     "Total Phone Numbers": lambda x: format_compact_decimal(int(x)),
-    #                     "Total Success": lambda x: format_compact_decimal(int(x)),
-    #                     "Success %": "{:.0f} %"}),use_container_width=False)
-    #         else:
-    #             st.dataframe(
-    #                 summary.style.format({
-    #                     "Total Phone Numbers": lambda x: format_indian_number(int(x)),
-    #                     "Total Success": lambda x: format_indian_number(int(x)),
-    #                     "Success %": "{:.0f} %"}),use_container_width=False)        
-
-    #     else:
-    #         st.info("📌 Not enough data to display summary or metrics.")
-
-    # with tab2:
-    #     if show_remarks:
-    #         if isinstance(comm_selected, list) and len(comm_selected) > 0:
-    #             comm_types_to_show = comm_selected
-    #         else:
-    #             comm_types_to_show = remark_df["Type of Communication"].dropna().unique()
-
-    #         for comm_type in comm_types_to_show:
-    #             comm_data = remark_df[remark_df["Type of Communication"].str.lower() == comm_type.lower()]
-    #             comm_data = comm_data[comm_data["Vendor"].str.strip().str.lower().isin(filtered_vendors)]
-
-    #             if comm_data.empty:
-    #                 continue
-
-    #             st.markdown(f"##### 📝 {comm_type} Vendor-wise Remarks")
-
-    #             remark_signature_map = defaultdict(list)
-    #             for vendor in comm_data["Vendor"].dropna().unique():
-    #                 temp = comm_data[comm_data["Vendor"] == vendor]
-    #                 pattern = tuple(zip(temp["Percentage Range"], temp["Comment Remark"]))
-    #                 remark_signature_map[pattern].append(vendor)
-
-    #             full_html = """
-    #             <style>
-    #             table.remark-table {
-    #                 border-collapse: collapse;
-    #                 width: 100%;
-    #                 margin-bottom: 30px;
-    #                 font-size: 15px;
-    #             }
-    #             table.remark-table th, table.remark-table td {
-    #                 border: 1px solid #ccc;
-    #                 padding: 4px;
-    #             }
-    #             table.remark-table th {
-    #                 background-color: #f0f0f0;
-    #                 text-align: center;
-    #             }
-    #             table.remark-table td.vendor-cell {
-    #                 text-align: center;
-    #                 vertical-align: middle;
-    #                 font-weight: 600;
-    #                 white-space: pre-wrap;
-    #                 background-color: #f9f9f9;
-    #             }
-    #             </style>
-    #             <table class="remark-table">
-    #             <thead>
-    #             <tr>
-    #                 <th>Vendor</th>
-    #                 <th>Percentage Range</th>
-    #                 <th>Comment Remark</th>
-    #             </tr>
-    #             </thead>
-    #             <tbody>
-    #             """
-
-    #             for pattern, vendor_list in remark_signature_map.items():
-    #                 vendor_html = ",<br>".join(vendor_list)
-    #                 rowspan = len(pattern)
-    #                 first = True
-    #                 for prange, comment in pattern:
-    #                     full_html += "<tr>"
-    #                     if first:
-    #                         full_html += f'<td class="vendor-cell" rowspan="{rowspan}">{vendor_html}</td>'
-    #                         first = False
-    #                     full_html += f"<td>{prange}</td><td>{comment}</td></tr>"
-
-    #             full_html += "</tbody></table>"
-    #             st.markdown(full_html, unsafe_allow_html=True)
-    #     else:
-    #         st.info("📌 Remarks not selected or no vendors filtered.")
-
-
 ##$$$$$$$ -- perfect work--- Show Remarks Vendors only ---- sidebar vendors filter mode  ---
 ##$$$$$$$ -- perfect work--- Show Remarks Vendors only ---- sidebar vendors filter mode  ---
 ##$$$$$$$ -- perfect work--- Show Remarks Vendors only ---- sidebar vendors filter mode  ---
 
-# if show_remarks:
-#     # Decide which comm types to show
-#     if isinstance(comm_selected, list) and len(comm_selected) > 0:
-#         comm_types_to_show = comm_selected
-#     else:
-#         comm_types_to_show = remark_df["Type of Communication"].dropna().unique()
-
-#     for comm_type in comm_types_to_show:
-#         comm_data = remark_df[remark_df["Type of Communication"].str.lower() == comm_type.lower()]
-
-#         # ✅ Filter by filtered vendors
-#         comm_data = comm_data[comm_data["Vendor"].str.strip().str.lower().isin(filtered_vendors)]
-
-#         if comm_data.empty:
-#             continue
-
-#         st.markdown(f"##### 📋 {comm_type} Vendor-wise Remarks")
-
-#         # Group vendors by remark pattern
-#         remark_signature_map = defaultdict(list)
-#         for vendor in comm_data["Vendor"].dropna().unique():
-#             temp = comm_data[comm_data["Vendor"] == vendor]
-#             pattern = tuple(zip(temp["Percentage Range"], temp["Comment Remark"]))
-#             remark_signature_map[pattern].append(vendor)
-
-#         # Build the remark table
-#         full_html = """
-#         <style>
-#         table.remark-table {
-#             border-collapse: collapse;
-#             width: 100%;
-#             margin-bottom: 30px;
-#             font-size: 15px;
-#         }
-#         table.remark-table th, table.remark-table td {
-#             border: 1px solid #ccc;
-#             padding: 4px;
-#         }
-#         table.remark-table th {
-#             background-color: #f0f0f0;
-#             text-align: center;
-#         }
-#         table.remark-table td.vendor-cell {
-#             text-align: center;
-#             vertical-align: middle;
-#             font-weight: 600;
-#             white-space: pre-wrap;
-#             background-color: #f9f9f9;
-#         }
-#         </style>
-#         <table class="remark-table">
-#         <thead>
-#         <tr>
-#             <th>Vendor</th>
-#             <th>Percentage Range</th>
-#             <th>Comment Remark</th>
-#         </tr>
-#         </thead>
-#         <tbody>
-#         """
-
-#         for pattern, vendor_list in remark_signature_map.items():
-#             vendor_html = ",<br>".join(vendor_list)
-#             rowspan = len(pattern)
-#             first = True
-#             for prange, comment in pattern:
-#                 full_html += "<tr>"
-#                 if first:
-#                     full_html += f'<td class="vendor-cell" rowspan="{rowspan}">{vendor_html}</td>'
-#                     first = False
-#                 full_html += f"<td>{prange}</td><td>{comment}</td></tr>"
-
-#         full_html += "</tbody></table>"
-#         st.markdown(full_html, unsafe_allow_html=True)
-# else:
-#     st.write("")
-
-#### not use function show new line dot points ****************  
-#### not use function show new line dot points ****************  
-# if show_remarks:
-#     # Decide which comm types to show
-#     if isinstance(comm_selected, list) and len(comm_selected) > 0:
-#         comm_types_to_show = comm_selected
-#     else:
-#         comm_types_to_show = remark_df["Type of Communication"].dropna().unique()
-
-#     for comm_type in comm_types_to_show:
-#         comm_data = remark_df[remark_df["Type of Communication"].str.lower() == comm_type.lower()]
-#         comm_data = comm_data[comm_data["Vendor"].str.strip().str.lower().isin(filtered_vendors)]
-
-#         if comm_data.empty:
-#             continue
-
-#         st.markdown(f"##### 📋 {comm_type} Vendor-wise Remarks")
-
-#         # Group vendors by remark pattern
-#         remark_signature_map = defaultdict(list)
-#         for vendor in comm_data["Vendor"].dropna().unique():
-#             temp = comm_data[comm_data["Vendor"] == vendor]
-#             pattern = tuple(zip(temp["Percentage Range"], temp["Comment Remark"]))
-#             remark_signature_map[pattern].append(vendor)
-
-#         # Build the remark table
-#         full_html = """
-#         <style>
-#         table.remark-table {
-#             border-collapse: collapse;
-#             width: 100%;
-#             margin-bottom: 30px;
-#             font-size: 15px;
-#         }
-#         table.remark-table th, table.remark-table td {
-#             border: 1px solid #ccc;
-#             padding: 6px;
-#             text-align: left;
-#             vertical-align: top;
-#         }
-#         table.remark-table th {
-#             background-color: #f0f0f0;
-#         }
-#         table.remark-table td.vendor-cell {
-#             text-align: center;
-#             vertical-align: middle;
-#             font-weight: 600;
-#             background-color: #f9f9f9;
-#             white-space: pre-wrap;
-#         }
-#         </style>
-#         <table class="remark-table">
-#         <thead>
-#         <tr>
-#             <th>Vendor</th>
-#             <th>Percentage Range</th>
-#             <th>Comment Remark</th>
-#         </tr>
-#         </thead>
-#         <tbody>
-#         """
-
-#         for pattern, vendor_list in remark_signature_map.items():
-#             vendor_html = ", ".join(vendor_list)
-#             rowspan = len(pattern)
-#             first = True
-#             for prange, comment in pattern:
-#                 full_html += "<tr>"
-#                 if first:
-#                     full_html += f'<td class="vendor-cell" rowspan="{rowspan}">{vendor_html}</td>'
-#                     first = False
-
-#                 # 🔽 Bullet-formatting for remarks
-#                 bullet_lines = "".join(
-#                     f"<li>{line.strip()}</li>" for line in comment.split("\n") if line.strip()
-#                 )
-#                 comment_html = f"<ul class='bullet-remarks'>{bullet_lines}</ul>"
-
-#                 full_html += f"<td>{prange}</td><td>{comment_html}</td></tr>"
-
-#         full_html += "</tbody></table>"
-#         st.markdown(full_html, unsafe_allow_html=True)
-# else:
-#     st.write("")
-#### not use function show new line dot points ****************  
-#### not use function show new line dot points ****************  
-
-##$$$$$$$ -- perfect work--- Show Remarks Vendors only ---- sidebar vendors filter mode  ---
-##$$$$$$$ -- perfect work--- Show Remarks Vendors only ---- sidebar vendors filter mode  ---
-##$$$$$$$ -- perfect work--- Show Remarks Vendors only ---- sidebar vendors filter mode  ---
 
 
 #########  sidebar Button  🔄 Click Refresh Dashboard Update & 🔴 Sign Out) ---------
@@ -1024,7 +726,7 @@ st_autorefresh(interval=3600000, key="auto_logout_refresh")
 ########### --------- auto refresh timer -------------
 
 ######------- chose colour for desing-----------
-try:st.markdown(f"""<div style="{format(bg1='#e6ffea', bg2='#ccf5d8', border="#80C99F")}">  </div> """, unsafe_allow_html=True)
+try:st.markdown(f"""<div style="{format(bg1='#e6ffea', bg2="#3697b2", border="#80C99F")}">  </div> """, unsafe_allow_html=True)
 except:pass
 ######------- chose colour for desing-----------
 
