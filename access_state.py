@@ -328,9 +328,9 @@ with st.sidebar:
     show_remarks = st.toggle("Show Vendor-wise Remarks", value=False)
     # st.warning("Please select **only one Communication Type (OBD or WhatsApp)** to view remarks.")
 
-    st.markdown("### 📨 Type of Communication")
+   # st.markdown("### 📨 Type of Communication")
     comm_options = sorted(df["Type of Communication"].dropna().unique())
-    comm_selected = st.pills("Filter Communication Types", comm_options, selection_mode="multi")
+comm_selected = st.pills("Filter Communication Types", comm_options, selection_mode="multi")
 
 
 ####--- 1 --- Sidebar - filters options -----
