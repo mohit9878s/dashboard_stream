@@ -334,8 +334,9 @@ if missing_columns:
 with st.sidebar:
     st.markdown("### 📨 Type of Communication")
     comm_options = sorted(df["Type of Communication"].dropna().unique())
-    select_all = st.checkbox("Select All Communication Types")
-    comm_selected = comm_options if select_all else st.pills("Filter Communication Types", comm_options, selection_mode="multi")
+#    select_all = st.checkbox("Select All Communication Types")
+#   comm_selected = comm_options if select_all else st.pills("Filter Communication Types", comm_options, selection_mode="multi")
+    comm_selected = st.pills("Filter Communication Types", comm_options, selection_mode="multi")
     show_remarks = st.toggle("Show Vendor-wise Remarks", value=False)
     # st.warning("Please select **only one Communication Type (OBD or WhatsApp)** to view remarks.")
     
