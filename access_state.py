@@ -329,7 +329,7 @@ with st.sidebar:
     # st.warning("Please select **only one Communication Type (OBD or WhatsApp)** to view remarks.")
 
    # st.markdown("### 📨 Type of Communication")
-    comm_options = sorted(df["Type of Communication"].dropna().unique())
+comm_options = sorted(df["Type of Communication"].dropna().unique())
 comm_selected = st.pills("Filter Communication Types", comm_options, selection_mode="multi")
 
 
