@@ -324,7 +324,7 @@ if missing_columns:
 
 # Sidebar - Communication Filter
 with st.sidebar:
-    group_by = st.selectbox("📂 Group Data By", ["Vendor Name", "State", "Cohort","Election Type"])
+    group_by = st.selectbox("📂 Analyze Data By", ["Vendor Name", "State", "Cohort","Election Type"])
     show_remarks = st.toggle("Show Vendor-wise Remarks", value=False)
     # st.warning("Please select **only one Communication Type (OBD or WhatsApp)** to view remarks.")
 
