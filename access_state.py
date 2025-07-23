@@ -126,7 +126,7 @@ comment_remark      = "https://docs.google.com/spreadsheets/d/1PAmuXQHqkVE5r0OjM
 access_user_state   = "https://docs.google.com/spreadsheets/d/1PAmuXQHqkVE5r0OjMwyvlxDS-O4e8CzBo8auI4uVYCA/edit#gid=1217256347"
 
 
-### dashboard_data_columns=['State', 'Type of Communication', 'Vendor Name', 'Election Type', 'Cohort', 'Total Phone Numbers', 'Total Success']
+### dashboard_data_columns=['State', 'Type of Communication', 'Vendor', 'Election Type', 'Cohort', 'Total Phone Numbers', 'Total Success']
 df = load_data(dashboard_data)
 df = df.dropna(subset=['State'])
 if df is None:
@@ -317,14 +317,14 @@ if allowed_states != "ALL":
 ###### ----- Enter Acces Code for State Type  ------------- Communication Dashboard   ------------
 
 
-required_columns = ["State", "Vendor Name", "Type of Communication", "Cohort","Election Type" ,"Total Phone Numbers", "Total Success"]
+required_columns = ["State", "Vendor", "Type of Communication", "Cohort","Election Type" ,"Total Phone Numbers", "Total Success"]
 missing_columns = [col for col in required_columns if col not in df.columns]
 if missing_columns:
     st.warning(f"⚠️ Some columns are missing in the sheet: {', '.join(missing_columns)}.")
 
 # Sidebar - Communication Filter
 with st.sidebar:
-    group_by = st.selectbox("📂 Analyze Data By", ["Vendor Name", "State", "Cohort","Election Type"])
+    group_by = st.selectbox("📂 Analyze Data By", ["Vendor", "State", "Cohort","Election Type"])
     show_remarks = st.toggle("Show Vendor-wise Remarks", value=False)
     # st.warning("Please select **only one Communication Type (OBD or WhatsApp)** to view remarks.")
 
@@ -346,7 +346,7 @@ with st.sidebar:
             st.session_state.cohort_filter = []
         election_options = sorted(df["Election Type"].dropna().unique())    
         state_options = sorted(df["State"].dropna().unique())
-        vendor_options = sorted(df["Vendor Name"].dropna().unique())
+        vendor_options = sorted(df["Vendor"].dropna().unique())
         cohort_options = sorted(df["Cohort"].dropna().unique())
         selected_elections = st.multiselect("🗓️ Election Type", election_options, default=st.session_state.election_filter, key="election_filter")
         selected_states = st.multiselect("📍 State", state_options, default=st.session_state.state_filter, key="state_filter")
@@ -378,13 +378,13 @@ if selected_elections:
 if selected_states:
     filtered_df = filtered_df[filtered_df["State"].isin(selected_states)]
 if selected_vendors:
-    filtered_df = filtered_df[filtered_df["Vendor Name"].isin(selected_vendors)]
+    filtered_df = filtered_df[filtered_df["Vendor"].isin(selected_vendors)]
 if selected_cohorts:
     filtered_df = filtered_df[filtered_df["Cohort"].isin(selected_cohorts)]
 if comm_selected:
     filtered_df = filtered_df[filtered_df["Type of Communication"].isin(comm_selected)]
 
-filtered_vendors = ( filtered_df["Vendor Name"].dropna().str.strip().str.lower().unique().tolist() )
+filtered_vendors = ( filtered_df["Vendor"].dropna().str.strip().str.lower().unique().tolist() )
 
 #### ----------    Apply Filters Mode -----------------
 #### ----------    Apply Filters Mode -----------------
@@ -402,26 +402,26 @@ if not filtered_df.empty:
                                             if row["Total Phone Numbers"] > 0 else 0, axis=1).round(2)
 
 
-    if isinstance(comm_selected, list) and len(comm_selected) == 1 and group_by == "Vendor Name":
+    if isinstance(comm_selected, list) and len(comm_selected) == 1 and group_by == "Vendor":
         comm = comm_selected[0]
         summary[comment_cols] = summary.apply(
-            lambda row: get_comment(row["Success %"], row["Vendor Name"], comm, remark_df),
+            lambda row: get_comment(row["Success %"], row["Vendor"], comm, remark_df),
             axis=1
         )
 
-    if group_by == "Vendor Name" and (not comm_selected or len(comm_selected) > 1):
+    if group_by == "Vendor" and (not comm_selected or len(comm_selected) > 1):
         # Get comma-separated communication types per vendor
         comm_type_map = (
-            filtered_df.groupby("Vendor Name")["Type of Communication"]
+            filtered_df.groupby("Vendor")["Type of Communication"]
             .apply(lambda x: ", ".join(sorted(set(x.dropna()))))
             .reset_index()
             .rename(columns={"Type of Communication": "Type of Communication(s)"})
         )
         
         # Merge with summary
-        summary = pd.merge(summary, comm_type_map, on="Vendor Name", how="left")
+        summary = pd.merge(summary, comm_type_map, on="Vendor", how="left")
         
-        # Reorder columns: Vendor Name, Type of Communication(s), then rest
+        # Reorder columns: Vendor, Type of Communication(s), then rest
         cols = summary.columns.tolist()
         if "Type of Communication(s)" in cols:
             cols.insert(1, cols.pop(cols.index("Type of Communication(s)")))
