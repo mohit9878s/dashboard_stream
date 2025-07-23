@@ -491,9 +491,9 @@ if not filtered_df.empty:
     if filtered_df:
         # st.markdown(f"<h5 style='color: #5A3A06; padding-top:0.2px; font-weight: 710 background-color: coral;'>📑 Filters Criteria </h5>", unsafe_allow_html=True)
         st.markdown("""
-                    <div style="background-color:#f0f2f6; border-radius:200px; min-height: 100px, min-width: 100px;
+                    <div style="background-color:#f0f2f676; border-radius:200px; min-height: 100px, min-width: 100px;
                      display: flex; align-items: center; justify-content: center;">
-                        <span style='color:#Black; font-size:18px; font-weight:550;'>Filter Criteria</span>
+                        <span style='color:Black; font-size:18px; font-weight:550;'>Filter Criteria</span>
                     </div>
                     """, unsafe_allow_html=True)
 
