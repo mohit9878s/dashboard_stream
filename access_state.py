@@ -384,6 +384,10 @@ if selected_cohorts:
 if comm_selected:
     filtered_df = filtered_df[filtered_df["Type of Communication"].isin(comm_selected)]
 
+if filtered_df.empty:
+    st.info("📌 No data found for selected filters.")
+    st.stop()
+
 filtered_vendors = ( filtered_df["Vendor"].dropna().str.strip().str.lower().unique().tolist() )
 
 #### ----------    Apply Filters Mode -----------------
