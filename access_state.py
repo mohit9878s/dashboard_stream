@@ -499,7 +499,7 @@ if not filtered_df.empty:
 
 
         for f in filtered_df:
-            st.markdown(f"<p>{f}</p>", unsafe_allow_html=True)
+            st.markdown(f"<div style='margin: 0px 0px 2px 8px;'>{f}</div>", unsafe_allow_html=True)
 ###------ Applied Filters Display -------------
 ###------ Applied Filters Display -------------
 
