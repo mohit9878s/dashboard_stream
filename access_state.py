@@ -513,7 +513,8 @@ if not filtered_df.empty:
     if selected_states:
         filtered_df.append(
             f"{badge('State :', '#e5f0fb', '#2980b9')} "
-            f"<span style='font-weight:450;'> &nbsp;&nbsp; {'&nbsp;,&nbsp;&nbsp;&nbsp;'.join(selected_states)}</span>")    if filtered_df:
+            f"<span style='font-weight:450;'> &nbsp;&nbsp; {'&nbsp;,&nbsp;&nbsp;&nbsp;'.join(selected_states)}</span>")    
+    if filtered_df:
         st.markdown("""
                     <div style="background-color:#f0f2f676; border-radius:200px; min-height: 100px, min-width: 100px;
                      display: flex; align-items: center; justify-content: center;">
