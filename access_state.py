@@ -101,7 +101,7 @@ def get_comment(success_pct, vendor, comm_type, remark_df):
         range_str = row["Percentage Range"]
         remark = row["Comment Remark"]
 
-        # Parse range like "0-20 %" or "81-100 %" or "0-35 %"
+        # Parse range like "0-19 %" or "81-100 %" or "0-35 %"
         try:
             numbers = [int(s.strip().replace("%", "")) for s in range_str.split("-")]
             if len(numbers) == 2 and numbers[0] <= pct <= numbers[1]:
@@ -194,7 +194,7 @@ st.markdown(
         height: 1.5px;
         background: linear-gradient(90deg, #ff9900, #ff6600);
         margin-top: 2px;
-        margin-bottom: 20px;
+        margin-bottom: 19px;
         border-radius: 4px;">
     </div>
     """,
@@ -469,7 +469,7 @@ if not filtered_df.empty:
         """, unsafe_allow_html=True)
     with col3:
         st.markdown(f"""
-        <div style='text-align:center; line-height:0.9; margin-bottom: 20px;'>
+        <div style='text-align:center; line-height:0.9; margin-bottom: 19px;'>
             <div style="font-size: 18px; font-weight: bold; color: Black #1f4e79; margin-bottom: 12px;">
                 📈 Overall Success %
             </div>
@@ -484,23 +484,23 @@ if not filtered_df.empty:
     filtered_df = []
     if comm_selected:
         filtered_df.append(f"<span style='font-size: 18px; font-weight: 600; color:#00c2b8;'>Communication : </span>"
-                           f"<span style='font-size: 20px; font-weight: 400;'> {', '.join(comm_selected)} </span>")
+                           f"<span style='font-size: 19px; font-weight: 400;'> {', '.join(comm_selected)} </span>")
     if selected_vendors:
         filtered_df.append(f"<span style='font-size: 18px; font-weight: 600; color:#f39c12;'>Vendors : </span>"
-                           f"<span style='font-size: 20px; font-weight: 400;'> {', '.join(selected_vendors)} </span>")
+                           f"<span style='font-size: 19px; font-weight: 400;'> {', '.join(selected_vendors)} </span>")
     if selected_elections:
         filtered_df.append(f"<span style='font-size: 18px; font-weight: 600; color:#7a24c9;'>Election Type : </span>"
-                           f"<span style='font-size: 20px; font-weight: 400;'> {', '.join(selected_elections)} </span>")
+                           f"<span style='font-size: 19px; font-weight: 400;'> {', '.join(selected_elections)} </span>")
     if selected_states:
         filtered_df.append(f"<span style='font-size: 18px; font-weight: 600; color:#2980b9;'>State : </span>"
-                           f"<span style='font-size: 20px; font-weight: 400;'> {', '.join(selected_states)} </span>")
+                           f"<span style='font-size: 19px; font-weight: 400;'> {', '.join(selected_states)} </span>")
     if selected_cohorts:
-        filtered_df.append(f"<span style='font-size: 18px; font-weight: 600; color:#c20041;'>Cohorts : </span>" 
-                           f"<span style='font-size: 20px; font-weight: 400;'>{', '.join(selected_cohorts)} </span>")
+        filtered_df.append(f"<span style='font-size: 18px; font-weight: 600; color:#c19041;'>Cohorts : </span>" 
+                           f"<span style='font-size: 19px; font-weight: 400;'>{', '.join(selected_cohorts)} </span>")
     if filtered_df:
         # st.markdown(f"<h5 style='color: #5A3A06; padding-top:0.2px; font-weight: 710 background-color: coral;'>📑 Filters Criteria </h5>", unsafe_allow_html=True)
         st.markdown("""
-                    <div style="background-color:#f0f2f676; border-radius:200px; min-height: 100px, min-width: 100px;
+                    <div style="background-color:#f0f2f676; border-radius:190px; min-height: 100px, min-width: 100px;
                      display: flex; align-items: center; justify-content: center;">
                         <span style='color:Black; font-size:18px; font-weight:550;'>Filter Criteria</span>
                     </div>
@@ -529,10 +529,10 @@ if not filtered_df.empty:
         custom_data_fields.append("Type of Communication(s)")
 
 #     st.markdown(f"""
-# <div style="background-color:#f0f2f6; border-radius:20px;
+# <div style="background-color:#f0f2f6; border-radius:19px;
 #             padding: 6px 12px; margin-bottom: 10px;
 #             display: flex; align-items: center; justify-content: center;">
-#     <span style='font-size:20px; font-weight:650;'>
+#     <span style='font-size:19px; font-weight:650;'>
 #         📊 <span style='color:#387fc1; font-weight:700;'>{group_by}</span>
 #         <span style='font-weight:600; '>-wise Success % Chart</span>
 #     </span>
