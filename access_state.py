@@ -322,9 +322,9 @@ missing_columns = [col for col in required_columns if col not in df.columns]
 if missing_columns:
     st.warning(f"⚠️ Some columns are missing in the sheet: {', '.join(missing_columns)}.")
 
-
-comm_options = sorted(df["Type of Communication"].dropna().unique())
-comm_selected = st.pills("**Filter Communication Types**", comm_options, selection_mode="multi")
+with st.sidebar:
+    comm_options = sorted(df["Type of Communication"].dropna().unique())
+    comm_selected = st.pills("**Filter Communication Types**", comm_options, selection_mode="multi")
 
 # Sidebar - Communication Filter
 with st.sidebar:
