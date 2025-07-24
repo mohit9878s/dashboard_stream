@@ -483,15 +483,15 @@ if not filtered_df.empty:
 ###------ Applied Filters Display -------------
     filtered_df = []
     if comm_selected:
-        filtered_df.append(f"<span style='color:#00c2b8; font-weight: 510;'>Communication : </span> {', '.join(comm_selected)}")
+        filtered_df.append(f"<span style='color:#00c2b8; font-weight: 650;'>Communication : </span> {', '.join(comm_selected)}")
     if selected_vendors:
-        filtered_df.append(f"<span style='color:#f39c12; font-weight: 510;'>Vendors : </span> {', '.join(selected_vendors)}")
+        filtered_df.append(f"<span style='color:#f39c12; font-weight: 650;'>Vendors : </span> {', '.join(selected_vendors)}")
     if selected_elections:
-        filtered_df.append(f"<span style='color:#7a24c9; font-weight: 510;'>Election Type : </span> {', '.join(selected_elections)}")
+        filtered_df.append(f"<span style='color:#7a24c9; font-weight: 650;'>Election Type : </span> {', '.join(selected_elections)}")
     if selected_states:
-        filtered_df.append(f"<span style='color:#2980b9; font-weight: 510;'>State : </span> {', '.join(selected_states)}")
+        filtered_df.append(f"<span style='color:#2980b9; font-weight: 650;'>State : </span> {', '.join(selected_states)}")
     if selected_cohorts:
-        filtered_df.append(f"<span style='color:#c20041; font-weight: 510;'>Cohorts : </span> {', '.join(selected_cohorts)}")
+        filtered_df.append(f"<span style='color:#c20041; font-weight: 650;'>Cohorts : </span> {', '.join(selected_cohorts)}")
     if filtered_df:
         # st.markdown(f"<h5 style='color: #5A3A06; padding-top:0.2px; font-weight: 710 background-color: coral;'>📑 Filters Criteria </h5>", unsafe_allow_html=True)
         st.markdown("""
