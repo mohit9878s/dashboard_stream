@@ -497,28 +497,23 @@ if not filtered_df.empty:
     if comm_selected:
         filtered_df.append(
             f"{badge('Communication :', '#d9fafa', '#00c2b8')} "
-            f"<span style='font-weight:450;'>{', '.join(comm_selected)}</span>")
-
-    if selected_vendors:
-        filtered_df.append(
-            f"{badge('Vendors :', '#fff4e5', '#f39c12')} "
-            f"<span style='font-weight:450;'>{', '.join(selected_vendors)}</span>")
-
+            f"<span style='font-weight:450;'> &nbsp;&nbsp; {'&nbsp;,&nbsp;&nbsp;&nbsp;'.join(comm_selected)}</span>")
     if selected_elections:
         filtered_df.append(
             f"{badge('Election Type :', '#f2e5ff', '#7a24c9')} "
-            f"<span style='font-weight:450;'>{', '.join(selected_elections)}</span>")
-
-    if selected_states:
+            f"<span style='font-weight:450;'> &nbsp;&nbsp; {'&nbsp;,&nbsp;&nbsp;&nbsp;'.join(selected_elections)}</span>")
+    if selected_vendors:
         filtered_df.append(
-            f"{badge('State :', '#e5f0fb', '#2980b9')} "
-            f"<span style='font-weight:450;'>{', '.join(selected_states)}</span>")
-
+            f"{badge('Vendors :', '#fff4e5', '#f39c12')} "
+            f"<span style='font-weight:450;'> &nbsp;&nbsp; {'&nbsp;,&nbsp;&nbsp;&nbsp;'.join(selected_vendors)}</span>")
     if selected_cohorts:
         filtered_df.append(
             f"{badge('Cohorts :', '#ffe5ec', '#c20041')} "
-            f"<span style='font-weight:450;'>{', '.join(selected_cohorts)}</span>")
-    if filtered_df:
+            f"<span style='font-weight:450;'> &nbsp;&nbsp; {'&nbsp;,&nbsp;&nbsp;&nbsp;'.join(selected_cohorts)}</span>")
+    if selected_states:
+        filtered_df.append(
+            f"{badge('State :', '#e5f0fb', '#2980b9')} "
+            f"<span style='font-weight:450;'> &nbsp;&nbsp; {'&nbsp;,&nbsp;&nbsp;&nbsp;'.join(selected_states)}</span>")    if filtered_df:
         st.markdown("""
                     <div style="background-color:#f0f2f676; border-radius:200px; min-height: 100px, min-width: 100px;
                      display: flex; align-items: center; justify-content: center;">
