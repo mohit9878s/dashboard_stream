@@ -322,6 +322,10 @@ missing_columns = [col for col in required_columns if col not in df.columns]
 if missing_columns:
     st.warning(f"⚠️ Some columns are missing in the sheet: {', '.join(missing_columns)}.")
 
+
+comm_options = sorted(df["Type of Communication"].dropna().unique())
+comm_selected = st.pills("**Filter Communication Types**", comm_options, selection_mode="multi")
+
 # Sidebar - Communication Filter
 with st.sidebar:
     group_by = st.selectbox("📂 Analyze Data By", ["Vendor", "State", "Cohort","Election Type"])
@@ -329,8 +333,8 @@ with st.sidebar:
     # st.warning("Please select **only one Communication Type (OBD or WhatsApp)** to view remarks.")
 
    # st.markdown("### 📨 Type of Communication")
-    comm_options = sorted(df["Type of Communication"].dropna().unique())
-    comm_selected = st.pills("**Filter Communication Types 📨**", comm_options, selection_mode="multi")
+   # comm_options = sorted(df["Type of Communication"].dropna().unique())
+   # comm_selected = st.pills("**Filter Communication Types**", comm_options, selection_mode="multi")
 
 
 ####--- 1 --- Sidebar - filters options -----
