@@ -484,19 +484,19 @@ if not filtered_df.empty:
     filtered_df = []
     if comm_selected:
         filtered_df.append(f"<span style='font-size: 18px; font-weight: 600; color:#00c2b8;'>Communication : </span>"
-                           f"<span style='font-size: 20px; font-weight: 450;'> {', '.join(comm_selected)} </span>")
+                           f"<span style='font-size: 20px; font-weight: 400;'> {', '.join(comm_selected)} </span>")
     if selected_vendors:
         filtered_df.append(f"<span style='font-size: 18px; font-weight: 600; color:#f39c12;'>Vendors : </span>"
-                           f"<span style='font-size: 20px; font-weight: 450;'> {', '.join(selected_vendors)} </span>")
+                           f"<span style='font-size: 20px; font-weight: 400;'> {', '.join(selected_vendors)} </span>")
     if selected_elections:
         filtered_df.append(f"<span style='font-size: 18px; font-weight: 600; color:#7a24c9;'>Election Type : </span>"
-                           f"<span style='font-size: 20px; font-weight: 450;'> {', '.join(selected_elections)} </span>")
+                           f"<span style='font-size: 20px; font-weight: 400;'> {', '.join(selected_elections)} </span>")
     if selected_states:
         filtered_df.append(f"<span style='font-size: 18px; font-weight: 600; color:#2980b9;'>State : </span>"
-                           f"<span style='font-size: 20px; font-weight: 450;'> {', '.join(selected_states)} </span>")
+                           f"<span style='font-size: 20px; font-weight: 400;'> {', '.join(selected_states)} </span>")
     if selected_cohorts:
         filtered_df.append(f"<span style='font-size: 18px; font-weight: 600; color:#c20041;'>Cohorts : </span>" 
-                           f"<span style='font-size: 20px; font-weight: 450;'>{', '.join(selected_cohorts)} </span>")
+                           f"<span style='font-size: 20px; font-weight: 400;'>{', '.join(selected_cohorts)} </span>")
     if filtered_df:
         # st.markdown(f"<h5 style='color: #5A3A06; padding-top:0.2px; font-weight: 710 background-color: coral;'>📑 Filters Criteria </h5>", unsafe_allow_html=True)
         st.markdown("""
