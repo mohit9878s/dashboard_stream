@@ -482,33 +482,51 @@ if not filtered_df.empty:
 ###------ Applied Filters Display -------------
 ###------ Applied Filters Display -------------
     filtered_df = []
+    def badge(label, color_bg, color_text):
+        return (
+            f"<span style='"
+            f"background-color:{color_bg}; "
+            f"color:{color_text}; "
+            "padding:4px 8px; "
+            "border-radius:6px; "
+            "font-weight:600; "
+            "font-size:14px;'>"
+            f"{label}</span>"
+        )
+    
     if comm_selected:
-        filtered_df.append(f"<span style='font-size: 18px; font-weight: 600; color:#00c2b8;'>Communication : </span>"
-                           f"<span style='font-size: 19px; font-weight: 400;'> {', '.join(comm_selected)} </span>")
+        filtered_df.append(
+            f"{badge('Communication :', '#d9fafa', '#00c2b8')} "
+            f"<span style='font-weight:450;'>{', '.join(comm_selected)}</span>")
+
     if selected_vendors:
-        filtered_df.append(f"<span style='font-size: 18px; font-weight: 600; color:#f39c12;'>Vendors : </span>"
-                           f"<span style='font-size: 19px; font-weight: 400;'> {', '.join(selected_vendors)} </span>")
+        filtered_df.append(
+            f"{badge('Vendors :', '#fff4e5', '#f39c12')} "
+            f"<span style='font-weight:450;'>{', '.join(selected_vendors)}</span>")
+
     if selected_elections:
-        filtered_df.append(f"<span style='font-size: 18px; font-weight: 600; color:#7a24c9;'>Election Type : </span>"
-                           f"<span style='font-size: 19px; font-weight: 400;'> {', '.join(selected_elections)} </span>")
+        filtered_df.append(
+            f"{badge('Election Type :', '#f2e5ff', '#7a24c9')} "
+            f"<span style='font-weight:450;'>{', '.join(selected_elections)}</span>")
+
     if selected_states:
-        filtered_df.append(f"<span style='font-size: 18px; font-weight: 600; color:#2980b9;'>State : </span>"
-                           f"<span style='font-size: 19px; font-weight: 400;'> {', '.join(selected_states)} </span>")
+        filtered_df.append(
+            f"{badge('State :', '#e5f0fb', '#2980b9')} "
+            f"<span style='font-weight:450;'>{', '.join(selected_states)}</span>")
+
     if selected_cohorts:
-        filtered_df.append(f"<span style='font-size: 18px; font-weight: 600; color:#c19041;'>Cohorts : </span>" 
-                           f"<span style='font-size: 19px; font-weight: 400;'>{', '.join(selected_cohorts)} </span>")
+        filtered_df.append(
+            f"{badge('Cohorts :', '#ffe5ec', '#c20041')} "
+            f"<span style='font-weight:450;'>{', '.join(selected_cohorts)}</span>")
     if filtered_df:
-        # st.markdown(f"<h5 style='color: #5A3A06; padding-top:0.2px; font-weight: 710 background-color: coral;'>📑 Filters Criteria </h5>", unsafe_allow_html=True)
         st.markdown("""
-                    <div style="background-color:#f0f2f676; border-radius:190px; min-height: 100px, min-width: 100px;
+                    <div style="background-color:#f0f2f676; border-radius:200px; min-height: 100px, min-width: 100px;
                      display: flex; align-items: center; justify-content: center;">
-                        <span style='color:Black; font-size:18px; font-weight:550;'>Filter Criteria</span>
+                        <span style='color:Black; font-size:18px; font-weight:550;'>📑Filter Criteria</span>
                     </div>
                     """, unsafe_allow_html=True)
-
-
         for f in filtered_df:
-            st.markdown(f"<div style='margin: 0px 0px 2px 8px;'>{f}</div>", unsafe_allow_html=True)
+            st.markdown(f"<div style='margin-bottom:2px;'>{f}</div>", unsafe_allow_html=True)
 ###------ Applied Filters Display -------------
 ###------ Applied Filters Display -------------
 
