@@ -678,6 +678,7 @@ if not filtered_df.empty:
                 table.remark-table th {
                     background-color: #f0f0f0;
                     text-align: center;
+                    color: black;
                 }
                 table.remark-table td.vendor-cell {
                     text-align: center;
@@ -685,6 +686,25 @@ if not filtered_df.empty:
                     font-weight: 600;
                     white-space: pre-wrap;
                     background-color: #f9f9f9;
+                    color: black;
+                }
+                table.remark-table td {
+                    color: black;
+                }
+
+                /* Dark mode support */
+                @media (prefers-color-scheme: dark) {
+                    table.remark-table th {
+                        background-color: #333333;
+                        color: white;
+                    }
+                    table.remark-table td.vendor-cell {
+                        background-color: #222222;
+                        color: white;
+                    }
+                    table.remark-table td {
+                        color: white;
+                    }
                 }
                 </style>
                 <table class="remark-table">
