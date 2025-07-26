@@ -699,59 +699,64 @@ if not filtered_df.empty:
                 # """
 
                 full_html = """
-                <style>
-                table.remark-table {
-                    border-collapse: collapse;
-                    width: 100%;
-                    margin-bottom: 30px;
-                    font-size: 12px;
-                }
-                table.remark-table th, table.remark-table td {
-                    border: 1px solid #ccc;
-                    padding: 4px;
-                }
-                table.remark-table th {
-                    background-color: #f0f0f0;
-                    text-align: center;
-                    color: black;
-                }
-                table.remark-table td.vendor-cell {
-                    text-align: center;
-                    vertical-align: middle;
-                    font-weight: 600;
-                    white-space: pre-wrap;
-                    background-color: #f9f9f9;
-                    color: black;
-                }
-                table.remark-table td {
-                    color: black;
-                }
+                    <style>
+                    table.remark-table {
+                        border-collapse: collapse;
+                        width: 100%;
+                        margin-bottom: 30px;
+                        font-size: 12px;
+                    }
+                    table.remark-table th, table.remark-table td {
+                        border: 1px solid #ccc !important;
+                        padding: 4px !important;
+                    }
 
-                /* Dark mode support */
-                @media (prefers-color-scheme: dark) {
+                    /* Light mode defaults */
                     table.remark-table th {
-                        background-color: #333333;
-                        color: white;
+                        background-color: #f0f0f0 !important;
+                        color: #000000 !important;
+                        text-align: center !important;
                     }
                     table.remark-table td.vendor-cell {
-                        background-color: #222222;
-                        color: white;
+                        text-align: center !important;
+                        vertical-align: middle !important;
+                        font-weight: 600 !important;
+                        white-space: pre-wrap !important;
+                        background-color: #f9f9f9 !important;
+                        color: #000000 !important;
                     }
                     table.remark-table td {
-                        color: white;
+                        background-color: #ffffff !important;
+                        color: #000000 !important;
                     }
-                }
-                </style>
-                <table class="remark-table">
-                <thead>
-                <tr>
-                    <th>Vendor</th>
-                    <th>Percentage Range</th>
-                    <th>Comment Remark</th>
-                </tr>
-                </thead>
-                <tbody>
-                """
+
+                    /* Dark mode overrides */
+                    @media (prefers-color-scheme: dark) {
+                        table.remark-table th {
+                            background-color: #333333 !important;
+                            color: #ffffff !important;
+                        }
+                        table.remark-table td.vendor-cell {
+                            background-color: #2a2a2a !important;
+                            color: #ffffff !important;
+                        }
+                        table.remark-table td {
+                            background-color: #1e1e1e !important;
+                            color: #ffffff !important;
+                        }
+                    }
+                    </style>
+
+                    <table class="remark-table">
+                    <thead>
+                    <tr>
+                        <th>Vendor</th>
+                        <th>Percentage Range</th>
+                        <th>Comment Remark</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    """
 
 
                 for pattern, vendor_list in remark_signature_map.items():
