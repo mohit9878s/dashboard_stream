@@ -663,6 +663,41 @@ if not filtered_df.empty:
                     pattern = tuple(zip(temp["Percentage Range"], temp["Comment Remark"]))
                     remark_signature_map[pattern].append(vendor)
 
+                # full_html = """
+                # <style>
+                # table.remark-table {
+                #     border-collapse: collapse;
+                #     width: 100%;
+                #     margin-bottom: 30px;
+                #     font-size: 12px;
+                # }
+                # table.remark-table th, table.remark-table td {
+                #     border: 1px solid #ccc;
+                #     padding: 4px;
+                # }
+                # table.remark-table th {
+                #     background-color: #f0f0f0;
+                #     text-align: center;
+                # }
+                # table.remark-table td.vendor-cell {
+                #     text-align: center;
+                #     vertical-align: middle;
+                #     font-weight: 600;
+                #     white-space: pre-wrap;
+                #     background-color: #f9f9f9;
+                # }
+                # </style>
+                # <table class="remark-table">
+                # <thead>
+                # <tr>
+                #     <th>Vendor</th>
+                #     <th>Percentage Range</th>
+                #     <th>Comment Remark</th>
+                # </tr>
+                # </thead>
+                # <tbody>
+                # """
+
                 full_html = """
                 <style>
                 table.remark-table {
@@ -717,6 +752,7 @@ if not filtered_df.empty:
                 </thead>
                 <tbody>
                 """
+
 
                 for pattern, vendor_list in remark_signature_map.items():
                     vendor_html = ",<br>".join(vendor_list)
@@ -776,7 +812,6 @@ st_autorefresh(interval=3600000, key="auto_logout_refresh")
 try:st.markdown(f"""<div style="{format(bg1='#e6ffea', bg2="#3697b2", border="#80C99F")}">  </div> """, unsafe_allow_html=True)
 except:pass
 ######------- chose colour for desing-----------
-
 
 
 
