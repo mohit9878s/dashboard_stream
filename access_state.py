@@ -578,7 +578,7 @@ if not filtered_df.empty:
     hovertemplate = ""
     # If communication type exists, show it first
     if "Type of Communication(s)" in custom_data_fields:
-        hovertemplate += "Comm.: %{customdata[2]}<br>"
+        hovertemplate += "Comm.Type: %{customdata[2]}<br>"
 
     hovertemplate += (
         "Total Data: %{customdata[0]}<br>"
