@@ -348,10 +348,27 @@ with st.sidebar:
             st.session_state.state_filter = []
             st.session_state.vendor_filter = []
             st.session_state.cohort_filter = []
-        election_options = sorted(df["Election Type"].dropna().unique())    
-        state_options = sorted(df["State"].dropna().unique())
-        vendor_options = sorted(df["Vendor"].dropna().unique())
-        cohort_options = sorted(df["Cohort"].dropna().unique())
+        filtered_for_options = df.copy()
+        if comm_selected:
+            filtered_for_options = filtered_for_options[filtered_for_options["Type of Communication"].isin(comm_selected)]
+
+        # 🧠 Step 2: Further filter based on selected values (respect other filters)
+        if st.session_state.state_filter:
+            filtered_for_options = filtered_for_options[filtered_for_options["State"].isin(st.session_state.state_filter)]
+        if st.session_state.vendor_filter:
+            filtered_for_options = filtered_for_options[filtered_for_options["Vendor"].isin(st.session_state.vendor_filter)]
+        if st.session_state.cohort_filter:
+            filtered_for_options = filtered_for_options[filtered_for_options["Cohort"].isin(st.session_state.cohort_filter)]
+        if st.session_state.election_filter:
+            filtered_for_options = filtered_for_options[filtered_for_options["Election Type"].isin(st.session_state.election_filter)]
+
+        # 🧠 Step 3: Now get dynamic values for filter options
+        election_options = sorted(filtered_for_options["Election Type"].dropna().unique())
+        state_options = sorted(filtered_for_options["State"].dropna().unique())
+        vendor_options = sorted(filtered_for_options["Vendor"].dropna().unique())
+        cohort_options = sorted(filtered_for_options["Cohort"].dropna().unique())
+
+        # 🧠 Step 4: Multiselect
         selected_elections = st.multiselect("🗓️ Election Type", election_options, default=st.session_state.election_filter, key="election_filter")
         selected_states = st.multiselect("📍 State", state_options, default=st.session_state.state_filter, key="state_filter")
         selected_vendors = st.multiselect("🏷️ Vendor", vendor_options, default=st.session_state.vendor_filter, key="vendor_filter")
