@@ -409,6 +409,7 @@ if filtered_df.empty:
     st.info("📌 No data found for selected filters.")
     st.stop()
 
+num_unique_group_by_items = filtered_df[group_by].nunique()
 filtered_vendors = ( filtered_df["Vendor"].dropna().str.strip().str.lower().unique().tolist() )
 
 #### ----------    Apply Filters Mode -----------------
@@ -582,7 +583,7 @@ if not filtered_df.empty:
     fig.update_layout(title=None)
     fig.update_layout(
     title={
-        "text": f"""<span style='color:#387fc1;'><b>{group_by} </b></span><span style='font-weight:normal;'> -  wise Success % Chart</span>""",
+        "text": f"""<span style='color:#387fc1;'><b>{num_unique_group_by_items}-{group_by} </b></span><span style='font-weight:normal;'> -  wise Success % Chart</span>""",
         "y": 0.97,
         "x": 0.05,  # 👈 Align left
         "xanchor": "left",
