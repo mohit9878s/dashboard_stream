@@ -340,39 +340,47 @@ with st.sidebar:
 for key in ["election_filter","state_filter", "vendor_filter", "cohort_filter"]:
     if key not in st.session_state:
         st.session_state[key] = []
+
 with st.sidebar:
-    with st.expander("🎛️ Apply Filters", expanded=True):
-        if st.button("❌ Clear Filters"):
-            st.session_state.election_filter = []
-            st.session_state.state_filter = []
-            st.session_state.vendor_filter = []
-            st.session_state.cohort_filter = []
-        filtered_for_options = df.copy()
-        if comm_selected:
-            filtered_for_options = filtered_for_options[filtered_for_options["Type of Communication"].isin(comm_selected)]
+    if st.button("❌ Clear Filters"):
+        st.session_state.election_filter = []
+        st.session_state.state_filter = []
+        st.session_state.vendor_filter = []
+        st.session_state.cohort_filter = []
 
-        # 🧠 Step 2: Further filter based on selected values (respect other filters)
-        if st.session_state.state_filter:
-            filtered_for_options = filtered_for_options[filtered_for_options["State"].isin(st.session_state.state_filter)]
-        if st.session_state.vendor_filter:
-            filtered_for_options = filtered_for_options[filtered_for_options["Vendor"].isin(st.session_state.vendor_filter)]
-        if st.session_state.cohort_filter:
-            filtered_for_options = filtered_for_options[filtered_for_options["Cohort"].isin(st.session_state.cohort_filter)]
-        if st.session_state.election_filter:
-            filtered_for_options = filtered_for_options[filtered_for_options["Election Type"].isin(st.session_state.election_filter)]
+    filtered_for_options = df.copy()
+    if data_type_selected:
+        filtered_for_options = filtered_for_options[
+            filtered_for_options["Data Type"].str.strip().str.lower() == data_type_selected.strip().lower()]
+    if comm_selected:
+        filtered_for_options = filtered_for_options[filtered_for_options["Type of Communication"].isin(comm_selected)]
+    ##-- Step 2: Further filter based on selected values (respect other filters)
+    if st.session_state.state_filter:
+        filtered_for_options = filtered_for_options[filtered_for_options["State"].isin(st.session_state.state_filter)]
+    if st.session_state.vendor_filter:
+        filtered_for_options = filtered_for_options[filtered_for_options["Vendor"].isin(st.session_state.vendor_filter)]
+    if st.session_state.cohort_filter:
+        filtered_for_options = filtered_for_options[filtered_for_options["Cohort"].isin(st.session_state.cohort_filter)]
+    if st.session_state.election_filter:
+        filtered_for_options = filtered_for_options[filtered_for_options["Election Type"].isin(st.session_state.election_filter)]
 
-        # 🧠 Step 3: Now get dynamic values for filter options
-        election_options = sorted(filtered_for_options["Election Type"].dropna().unique())
-        state_options = sorted(filtered_for_options["State"].dropna().unique())
-        vendor_options = sorted(filtered_for_options["Vendor"].dropna().unique())
-        cohort_options = sorted(filtered_for_options["Cohort"].dropna().unique())
+    ##-- Now get dynamic values for filter options
+    election_options = sorted(filtered_for_options["Election Type"].dropna().unique())
+    state_options = sorted(filtered_for_options["State"].dropna().unique())
+    vendor_options = sorted(filtered_for_options["Vendor"].dropna().unique())
+    cohort_options = sorted(filtered_for_options["Cohort"].dropna().unique())
 
-        # 🧠 Step 4: Multiselect
-        selected_elections = st.multiselect("🗓️ Election Type", election_options, default=st.session_state.election_filter, key="election_filter")
-        selected_states = st.multiselect("📍 State", state_options, default=st.session_state.state_filter, key="state_filter")
-        selected_vendors = st.multiselect("🏷️ Vendor", vendor_options, default=st.session_state.vendor_filter, key="vendor_filter")
-        selected_cohorts = st.multiselect("🎯 Cohort", cohort_options, default=st.session_state.cohort_filter, key="cohort_filter")
-#####--- 1 --- Sidebar - filters options -----
+if not any([election_options, state_options, vendor_options, cohort_options]):
+    st.error("❌ No data found. Please clear some sidebar filters to continue.")
+    st.stop()
+
+##-- Multiselect
+with st.sidebar:
+    with st.expander("🎛️ Apply Filters",expanded=True):
+        selected_elections =st.multiselect("🗓️ Election Type", election_options, default=st.session_state.election_filter, key="election_filter")
+        selected_states =st.multiselect("📍 State", state_options, default=st.session_state.state_filter, key="state_filter")
+        selected_vendors =st.multiselect("🏷️ Vendor", vendor_options, default=st.session_state.vendor_filter, key="vendor_filter")
+        selected_cohorts =st.multiselect("🎯 Cohort", cohort_options, default=st.session_state.cohort_filter, key="cohort_filter")#####--- 1 --- Sidebar - filters options -----
 
 
 
