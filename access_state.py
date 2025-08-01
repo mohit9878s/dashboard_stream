@@ -349,9 +349,6 @@ with st.sidebar:
         st.session_state.cohort_filter = []
 
     filtered_for_options = df.copy()
-    if data_type_selected:
-        filtered_for_options = filtered_for_options[
-            filtered_for_options["Data Type"].str.strip().str.lower() == data_type_selected.strip().lower()]
     if comm_selected:
         filtered_for_options = filtered_for_options[filtered_for_options["Type of Communication"].isin(comm_selected)]
     ##-- Step 2: Further filter based on selected values (respect other filters)
