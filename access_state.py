@@ -547,9 +547,6 @@ if not filtered_df.empty:
             st.markdown(f"<div style='margin-bottom:2px;'>{f}</div>", unsafe_allow_html=True)
         st.write("")
         st.write("")
-        st.write("")
-        st.write("")
-
 
 ###------ Applied Filters Display -------------
 ###------ Applied Filters Display -------------
