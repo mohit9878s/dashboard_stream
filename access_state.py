@@ -373,7 +373,7 @@ if not any([election_options, state_options, vendor_options, cohort_options]):
 
 ##-- Multiselect
 with st.sidebar:
-    with st.expander("🎛 **Apply Filters**",expanded=True):
+    with st.expander("**📥 Apply Filters**",expanded=True):
         selected_elections =st.multiselect("🗓️ Election Type", election_options, default=st.session_state.election_filter, key="election_filter")
         selected_states =st.multiselect("📍 State", state_options, default=st.session_state.state_filter, key="state_filter")
         selected_vendors =st.multiselect("🏷️ Vendor", vendor_options, default=st.session_state.vendor_filter, key="vendor_filter")
