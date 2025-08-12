@@ -460,6 +460,17 @@ if not filtered_df.empty:
 ######---- Summary Table Add columns Success (%) and comment ------------------
 ######---- Summary Table Add columns Success (%) and comment ------------------
 
+    comm_type_map = (
+        filtered_df.groupby(group_by)["Type of Communication"]
+        .apply(lambda x: ", ".join(sorted(set(x.dropna()))))
+        .reset_index()
+        .rename(columns={"Type of Communication": "Type of Communication(s)"})
+    )
+    summary = pd.merge(summary, comm_type_map, on=group_by, how="left")
+    if "Type of Communication(s)_x" in summary.columns:
+        summary["Type of Communication(s)"] = summary["Type of Communication(s)_x"].fillna(summary["Type of Communication(s)_y"])
+        summary.drop(columns=["Type of Communication(s)_x", "Type of Communication(s)_y"], inplace=True)
+
 
 
 ######### --- 📞 Total Phone Number ---------- ☑️ Total Success ----------- 📈 Oveall Success % -----------------------
@@ -557,82 +568,134 @@ if not filtered_df.empty:
 ###------ Display Bar Chart Summary Table ----------------
 # ------------------- Tab-based Chart Display ---------------------
     # Grouping type
-
+    
     chart_data = summary.copy().sort_values("Success %", ascending=False)
     chart_data["Success %"] = chart_data["Success %"].apply(lambda x: f"{x:.0f} %")
     chart_data["Total Data (Compact)"] = chart_data["Total Phone Numbers"].apply(format_compact_decimal)
     chart_data["Total Success (Compact)"] = chart_data["Total Success"].apply(format_compact_decimal)
 
-    custom_data_fields = ["Total Data (Compact)", "Total Success (Compact)"]
-    if "Type of Communication(s)" in chart_data.columns:
-        custom_data_fields.append("Type of Communication(s)")
+    custom_data_fields = ["Total Data (Compact)", "Total Success (Compact)", "Type of Communication(s)"]
 
-#     st.markdown(f"""
-# <div style="background-color:#f0f2f6; border-radius:19px;
-#             padding: 6px 12px; margin-bottom: 10px;
-#             display: flex; align-items: center; justify-content: center;">
-#     <span style='font-size:19px; font-weight:650;'>
-#         📊 <span style='color:#387fc1; font-weight:700;'>{group_by}</span>
-#         <span style='font-weight:600; '>-wise Success % Chart</span>
-#     </span>
-# </div>
-# """, unsafe_allow_html=True)
+    # fig = px.bar(
+    #     chart_data,
+    #     x=group_by,
+    #     y="Success %",
+    #     text="Success %",
+    #     color=group_by,
+    #     color_continuous_scale="Viridis",
+    #     custom_data=custom_data_fields
+    # )
+    # fig.update_layout(title=None)
+    # fig.update_layout(
+    # title={
+    #     "text": f"""<span style='color:#387fc1;'><b>{num_unique_group_by_items}-{group_by} </b></span><span style='font-weight:normal;'> -  wise Success % Chart</span>""",
+    #     "y": 0.97,
+    #     "x": 0.05,  # 👈 Align left
+    #     "xanchor": "left",
+    #     "yanchor": "top"
+    # },
+    # title_font=dict(size=24))
 
+    # hovertemplate = ""
+    # hovertemplate += (
+    #     "Comm.Type: %{customdata[2]}<br>"
+    #     "Total Data: %{customdata[0]}<br>"
+    #     "Total Success: %{customdata[1]}<br>"
+    #     "<extra></extra>"
+    # )
+    # hovertemplate += "<extra></extra>"
+
+    # fig.update_traces(
+    #     texttemplate="<b>%{text}</b>",
+    #     textposition="inside",
+    #     insidetextanchor="end",
+    #     hovertemplate=hovertemplate
+    # )
+
+    # fig.update_layout(
+    #     yaxis_title="Success %",
+    #     xaxis_title=group_by,
+    #     uniformtext_minsize=8,
+    #     uniformtext_mode='hide',
+    #     margin=dict(t=40, b=50),
+    #     height=400,
+    #     showlegend=False) 
+    # st.plotly_chart(fig, use_container_width=True)
+
+###------ Display Bar Chart Summary Table ----------------
+###------ Display Bar Chart Summary Table ----------------
+
+
+# ensure Success numeric column exists (works even if you earlier formatted it as "80 %")
+    if chart_data["Success %"].dtype == object or chart_data["Success %"].astype(str).str.contains("%").any():
+        chart_data["Success_numeric"] = (
+            chart_data["Success %"].astype(str).str.replace("%", "").str.strip().replace("", "0").astype(float))
+    else:
+        chart_data["Success_numeric"] = chart_data["Success %"].astype(float)
+
+    # create a display text column (keeps "80 %" for showing on bars)
+    chart_data["Success_display"] = chart_data["Success_numeric"].apply(lambda x: f"{x:.0f} %")
+
+    # ensure Type of Communication(s) exists for hover (fallback handle)
+    if "Type of Communication(s)" not in chart_data.columns:
+        # try common merged names then fallback to '-'
+        chart_data["Type of Communication(s)"] = chart_data.get("Type of Communication(s)_x",
+                                                                chart_data.get("Type of Communication(s)_y", "-"))
+
+    # custom data for hover (keep same order as hovertemplate indices)
+    custom_data_fields = ["Total Data (Compact)", "Total Success (Compact)", "Type of Communication(s)"]
+
+    # Create bar chart using numeric column for color (single color family shades)
     fig = px.bar(
         chart_data,
         x=group_by,
-        y="Success %",
-        text="Success %",
-        color=group_by,
-        color_continuous_scale="Viridis",
+        y="Success_numeric",            # numeric heights (0..100)
+        text="Success_display",         # text shown inside bars
+        color="Success_numeric",        # color keyed to numeric value -> continuous shades
+        color_continuous_scale=["#ffe8e1", "#e87d71"],  # light -> dark blue (change if needed)
+        range_color=[100, 10],           # force range so shades are distinct
         custom_data=custom_data_fields
     )
-    fig.update_layout(title=None)
-    fig.update_layout(
-    title={
-        "text": f"""<span style='color:#387fc1;'><b>{num_unique_group_by_items}-{group_by} </b></span><span style='font-weight:normal;'> -  wise Success % Chart</span>""",
-        "y": 0.97,
-        "x": 0.05,  # 👈 Align left
-        "xanchor": "left",
-        "yanchor": "top"
-    },
-    title_font=dict(size=24),
-    )
 
 
-    hovertemplate = ""
-    # If communication type exists, show it first
-    if "Type of Communication(s)" in custom_data_fields:
-        hovertemplate += "Comm.Type: %{customdata[2]}<br>"
+    # hide the continuous colorbar if you don't want it displayed
 
-    hovertemplate += (
+    fig.update_coloraxes(showscale=False)
+
+    # hovertemplate - customdata indices must match custom_data_fields order
+    hovertemplate = (
+        "Comm.Type: %{customdata[2]}<br>"
         "Total Data: %{customdata[0]}<br>"
         "Total Success: %{customdata[1]}<br>"
         "<extra></extra>"
     )
-    hovertemplate += "<extra></extra>"
 
     fig.update_traces(
         texttemplate="<b>%{text}</b>",
         textposition="inside",
-        insidetextanchor="end",
-        hovertemplate=hovertemplate
+        insidetextanchor="middle",
+        hovertemplate=hovertemplate,
+        marker_line_width=0
     )
 
     fig.update_layout(
+        title={
+            "text": f"<span style='color:#387fc1;'><b>{num_unique_group_by_items}-{group_by} </b></span><span style='font-weight:normal;'> -  wise Success % Chart</span>",
+            "y": 0.99, "x": 0.05, "xanchor": "left", "yanchor": "top"
+        },
+        title_font=dict(size=24),
         yaxis_title="Success %",
         xaxis_title=group_by,
-        uniformtext_minsize=8,
+        uniformtext_minsize=10,
         uniformtext_mode='hide',
-        margin=dict(t=40, b=50),
-        height=400,
-        showlegend=False
+        margin=dict(t=50, b=60),
+        height=450,
+        showlegend=True
     )
 
-    
+    ### make y-axis show percent ticks (and limit 0..100)
+    # fig.update_yaxes(range=[0, 100], ticksuffix="%")
     st.plotly_chart(fig, use_container_width=True)
-###------ Display Bar Chart Summary Table ----------------
-###------ Display Bar Chart Summary Table ----------------
 
 
 # Tabs: Conditionally show second tab
@@ -687,41 +750,6 @@ if not filtered_df.empty:
                     temp = comm_data[comm_data["Vendor"] == vendor]
                     pattern = tuple(zip(temp["Percentage Range"], temp["Comment Remark"]))
                     remark_signature_map[pattern].append(vendor)
-
-                # full_html = """
-                # <style>
-                # table.remark-table {
-                #     border-collapse: collapse;
-                #     width: 100%;
-                #     margin-bottom: 30px;
-                #     font-size: 12px;
-                # }
-                # table.remark-table th, table.remark-table td {
-                #     border: 1px solid #ccc;
-                #     padding: 4px;
-                # }
-                # table.remark-table th {
-                #     background-color: #f0f0f0;
-                #     text-align: center;
-                # }
-                # table.remark-table td.vendor-cell {
-                #     text-align: center;
-                #     vertical-align: middle;
-                #     font-weight: 600;
-                #     white-space: pre-wrap;
-                #     background-color: #f9f9f9;
-                # }
-                # </style>
-                # <table class="remark-table">
-                # <thead>
-                # <tr>
-                #     <th>Vendor</th>
-                #     <th>Percentage Range</th>
-                #     <th>Comment Remark</th>
-                # </tr>
-                # </thead>
-                # <tbody>
-                # """
 
                 full_html = """
                     <style>
@@ -842,9 +870,3 @@ st_autorefresh(interval=3600000, key="auto_logout_refresh")
 try:st.markdown(f"""<div style="{format(bg1='#e6ffea', bg2="#3697b2", border="#80C99F")}">  </div> """, unsafe_allow_html=True)
 except:pass
 ######------- chose colour for desing-----------
-
-
-
-
-
-
