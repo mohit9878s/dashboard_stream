@@ -325,16 +325,11 @@ with st.sidebar:
     comm_options = sorted(df["Type of Communication"].dropna().unique())
     comm_selected = st.pills("**Filter Communication Types**", comm_options, selection_mode="multi")
 
+
 # Sidebar - Communication Filter
 with st.sidebar:
     group_by = st.selectbox("📂 Analyze Data By", ["Vendor", "State", "Cohort","Election Type"])
     show_remarks = st.toggle("Show Vendor-wise Remarks", value=False)
-    # st.warning("Please select **only one Communication Type (OBD or WhatsApp)** to view remarks.")
-
-   # st.markdown("### 📨 Type of Communication")
-   # comm_options = sorted(df["Type of Communication"].dropna().unique())
-   # comm_selected = st.pills("**Filter Communication Types**", comm_options, selection_mode="multi")
-
 
 ####--- 1 --- Sidebar - filters options -----
 for key in ["election_filter","state_filter", "vendor_filter", "cohort_filter"]:
@@ -348,26 +343,59 @@ with st.sidebar:
         st.session_state.vendor_filter = []
         st.session_state.cohort_filter = []
 
-    filtered_for_options = df.copy()
-    if comm_selected:
-        filtered_for_options = filtered_for_options[filtered_for_options["Type of Communication"].isin(comm_selected)]
-    ##-- Step 2: Further filter based on selected values (respect other filters)
-    if st.session_state.state_filter:
-        filtered_for_options = filtered_for_options[filtered_for_options["State"].isin(st.session_state.state_filter)]
-    if st.session_state.vendor_filter:
-        filtered_for_options = filtered_for_options[filtered_for_options["Vendor"].isin(st.session_state.vendor_filter)]
-    if st.session_state.cohort_filter:
-        filtered_for_options = filtered_for_options[filtered_for_options["Cohort"].isin(st.session_state.cohort_filter)]
-    if st.session_state.election_filter:
-        filtered_for_options = filtered_for_options[filtered_for_options["Election Type"].isin(st.session_state.election_filter)]
+    # filtered_for_options = df.copy()
+    # if comm_selected:
+    #     filtered_for_options = filtered_for_options[filtered_for_options["Type of Communication"].isin(comm_selected)]
+    # ##-- Step 2: Further filter based on selected values (respect other filters)
+    # if st.session_state.state_filter:
+    #     filtered_for_options = filtered_for_options[filtered_for_options["State"].isin(st.session_state.state_filter)]
+    # if st.session_state.vendor_filter:
+    #     filtered_for_options = filtered_for_options[filtered_for_options["Vendor"].isin(st.session_state.vendor_filter)]
+    # if st.session_state.cohort_filter:
+    #     filtered_for_options = filtered_for_options[filtered_for_options["Cohort"].isin(st.session_state.cohort_filter)]
+    # if st.session_state.election_filter:
+    #     filtered_for_options = filtered_for_options[filtered_for_options["Election Type"].isin(st.session_state.election_filter)]
 
-    ##-- Now get dynamic values for filter options
-    election_options = sorted(filtered_for_options["Election Type"].dropna().unique())
-    state_options = sorted(filtered_for_options["State"].dropna().unique())
-    vendor_options = sorted(filtered_for_options["Vendor"].dropna().unique())
-    cohort_options = sorted(filtered_for_options["Cohort"].dropna().unique())
+# Dynamic options WITHOUT applying own filter
+    def get_filtered_options(exclude_filter=None):
+        temp_df = df.copy()
+        if comm_selected:
+            temp_df = temp_df[temp_df["Type of Communication"].isin(comm_selected)]
+        if exclude_filter != "election" and st.session_state.election_filter:
+            temp_df = temp_df[temp_df["Election Type"].isin(st.session_state.election_filter)]
+        if exclude_filter != "state" and st.session_state.state_filter:
+            temp_df = temp_df[temp_df["State"].isin(st.session_state.state_filter)]
+        if exclude_filter != "vendor" and st.session_state.vendor_filter:
+            temp_df = temp_df[temp_df["Vendor"].isin(st.session_state.vendor_filter)]
+        if exclude_filter != "cohort" and st.session_state.cohort_filter:
+            temp_df = temp_df[temp_df["Cohort"].isin(st.session_state.cohort_filter)]
+        return temp_df
 
-if not any([election_options, state_options, vendor_options, cohort_options]):
+    # Dynamic options for each filter type
+    election_options = sorted(get_filtered_options(exclude_filter="election")["Election Type"].dropna().unique())
+    state_options    = sorted(get_filtered_options(exclude_filter="state")["State"].dropna().unique())
+    vendor_options   = sorted(get_filtered_options(exclude_filter="vendor")["Vendor"].dropna().unique())
+    cohort_options   = sorted(get_filtered_options(exclude_filter="cohort")["Cohort"].dropna().unique())
+
+# 2. Get dynamic options
+election_options = sorted(get_filtered_options(exclude_filter="election")["Election Type"].dropna().unique())
+state_options    = sorted(get_filtered_options(exclude_filter="state")["State"].dropna().unique())
+vendor_options   = sorted(get_filtered_options(exclude_filter="vendor")["Vendor"].dropna().unique())
+cohort_options   = sorted(get_filtered_options(exclude_filter="cohort")["Cohort"].dropna().unique())
+
+# 3. Validate defaults
+valid_election_defaults = [v for v in st.session_state.election_filter if v in election_options]
+valid_state_defaults    = [v for v in st.session_state.state_filter if v in state_options]
+valid_vendor_defaults   = [v for v in st.session_state.vendor_filter if v in vendor_options]
+valid_cohort_defaults   = [v for v in st.session_state.cohort_filter if v in cohort_options]
+
+if (
+    not any([election_options, state_options, vendor_options, cohort_options]) or
+    (st.session_state.election_filter and not valid_election_defaults) or
+    (st.session_state.state_filter and not valid_state_defaults) or
+    (st.session_state.vendor_filter and not valid_vendor_defaults) or
+    (st.session_state.cohort_filter and not valid_cohort_defaults)
+):
     st.error("❌ No data found. Please clear some sidebar filters to continue.")
     st.stop()
 
@@ -377,14 +405,15 @@ with st.sidebar:
         selected_elections =st.multiselect("🗓️ Election Type", election_options, default=st.session_state.election_filter, key="election_filter")
         selected_states =st.multiselect("📍 State", state_options, default=st.session_state.state_filter, key="state_filter")
         selected_vendors =st.multiselect("🏷️ Vendor", vendor_options, default=st.session_state.vendor_filter, key="vendor_filter")
-        selected_cohorts =st.multiselect("🎯 Cohort", cohort_options, default=st.session_state.cohort_filter, key="cohort_filter")#####--- 1 --- Sidebar - filters options -----
+        selected_cohorts =st.multiselect("🎯 Cohort", cohort_options, default=st.session_state.cohort_filter, key="cohort_filter")
+
+#####--- 1 --- Sidebar - filters options -----
 
 
 
 #########  sidebar Button  (Decimal Number Format ( e.g. 1.1 : K, L, Cr )---------
 #########  sidebar Button  (Decimal Number Format ( e.g. 1.1 : K, L, Cr )---------
 with st.sidebar:
-### ---------- Decimal Number Format ( e.g. 1.1 : K, L, Cr )
     # st.markdown("---")
     compact_style = "comma"
     format_option = st.pills("Show Number Format As", ["Decimal Format ( e.g. 1.1 : K, L, Cr )"])
@@ -576,56 +605,8 @@ if not filtered_df.empty:
 
     custom_data_fields = ["Total Data (Compact)", "Total Success (Compact)", "Type of Communication(s)"]
 
-    # fig = px.bar(
-    #     chart_data,
-    #     x=group_by,
-    #     y="Success %",
-    #     text="Success %",
-    #     color=group_by,
-    #     color_continuous_scale="Viridis",
-    #     custom_data=custom_data_fields
-    # )
-    # fig.update_layout(title=None)
-    # fig.update_layout(
-    # title={
-    #     "text": f"""<span style='color:#387fc1;'><b>{num_unique_group_by_items}-{group_by} </b></span><span style='font-weight:normal;'> -  wise Success % Chart</span>""",
-    #     "y": 0.97,
-    #     "x": 0.05,  # 👈 Align left
-    #     "xanchor": "left",
-    #     "yanchor": "top"
-    # },
-    # title_font=dict(size=24))
-
-    # hovertemplate = ""
-    # hovertemplate += (
-    #     "Comm.Type: %{customdata[2]}<br>"
-    #     "Total Data: %{customdata[0]}<br>"
-    #     "Total Success: %{customdata[1]}<br>"
-    #     "<extra></extra>"
-    # )
-    # hovertemplate += "<extra></extra>"
-
-    # fig.update_traces(
-    #     texttemplate="<b>%{text}</b>",
-    #     textposition="inside",
-    #     insidetextanchor="end",
-    #     hovertemplate=hovertemplate
-    # )
-
-    # fig.update_layout(
-    #     yaxis_title="Success %",
-    #     xaxis_title=group_by,
-    #     uniformtext_minsize=8,
-    #     uniformtext_mode='hide',
-    #     margin=dict(t=40, b=50),
-    #     height=400,
-    #     showlegend=False) 
-    # st.plotly_chart(fig, use_container_width=True)
-
 ###------ Display Bar Chart Summary Table ----------------
 ###------ Display Bar Chart Summary Table ----------------
-
-
 # ensure Success numeric column exists (works even if you earlier formatted it as "80 %")
     if chart_data["Success %"].dtype == object or chart_data["Success %"].astype(str).str.contains("%").any():
         chart_data["Success_numeric"] = (
@@ -656,12 +637,9 @@ if not filtered_df.empty:
         range_color=[100, 10],           # force range so shades are distinct
         custom_data=custom_data_fields
     )
-
-
     # hide the continuous colorbar if you don't want it displayed
 
     fig.update_coloraxes(showscale=False)
-
     # hovertemplate - customdata indices must match custom_data_fields order
     hovertemplate = (
         "Comm.Type: %{customdata[2]}<br>"
@@ -695,9 +673,11 @@ if not filtered_df.empty:
 
     ### make y-axis show percent ticks (and limit 0..100)
     # fig.update_yaxes(range=[0, 100], ticksuffix="%")
+
     st.plotly_chart(fig, use_container_width=True)
 
-
+##$$$$$$$ -- perfect work--- Show Remarks Vendors only ---- sidebar vendors filter mode  ---
+##$$$$$$$ -- perfect work--- Show Remarks Vendors only ---- sidebar vendors filter mode  ---
 # Tabs: Conditionally show second tab
     if show_remarks:
         tab1, tab2 = st.tabs(["📊 Summary Table", "🗒️ Vendor-wise Remark Summary"])
