@@ -460,11 +460,6 @@ if not filtered_df.empty:
         # Merge with summary
         summary = pd.merge(summary, comm_type_map, on="Vendor", how="left")
         
-        # Reorder columns: Vendor, Type of Communication(s), then rest
-        cols = summary.columns.tolist()
-        if "Type of Communication(s)" in cols:
-            cols.insert(1, cols.pop(cols.index("Type of Communication(s)")))
-            summary = summary[cols]
 
 ######---- Summary Table Add columns Success (%) and comment ------------------
 ######---- Summary Table Add columns Success (%) and comment ------------------
@@ -479,6 +474,12 @@ if not filtered_df.empty:
     if "Type of Communication(s)_x" in summary.columns:
         summary["Type of Communication(s)"] = summary["Type of Communication(s)_x"].fillna(summary["Type of Communication(s)_y"])
         summary.drop(columns=["Type of Communication(s)_x", "Type of Communication(s)_y"], inplace=True)
+
+    cols = summary.columns.tolist()
+    if "Type of Communication(s)" in cols:
+        cols.insert(1, cols.pop(cols.index("Type of Communication(s)")))
+        summary = summary[cols]
+
 
 
 
