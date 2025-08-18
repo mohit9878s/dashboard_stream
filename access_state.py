@@ -614,7 +614,8 @@ if not filtered_df.empty:
         y="Success_numeric",            # numeric heights (0..100)
         text="Success_display",         # text shown inside bars
         color="Success_numeric",        # color keyed to numeric value -> continuous shades
-        color_continuous_scale=["#ffe8e1", "#e87d71"],  # light -> dark blue (change if needed)
+        color_continuous_scale=["#fff2e1", "#fd6a30"],  # light -> orsnged (change if needed)
+#        color_continuous_scale=["#ffe8e1", "#e87d71"], # light -> red (change if needed)
         range_color=[100, 10],           # force range so shades are distinct
         custom_data=custom_data_fields
     )
