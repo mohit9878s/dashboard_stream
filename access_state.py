@@ -669,24 +669,35 @@ if not filtered_df.empty:
     # ---------- TAB 1: Summary Table ----------
     with tab1:
         # st.markdown("##### 📋 Summary Table")
-        
+                
         if not summary.empty:
+            # clean numeric columns
             summary["Total Phone Numbers"] = pd.to_numeric(summary["Total Phone Numbers"], errors='coerce')
             summary["Total Success"] = pd.to_numeric(summary["Total Success"], errors='coerce')
             summary["Success %"] = pd.to_numeric(summary["Success %"], errors='coerce')
-            summary.index = range(1, len(summary) + 1)
+        
+            # reset index safely
+            summary_display = summary.copy().reset_index(drop=True)
+        
+            # compact vs normal style
             if compact_style == "compact":
                 st.dataframe(
-                    summary.style.format({
+                    summary_display.style.format({
                         "Total Phone Numbers": lambda x: format_compact_decimal(int(x)),
                         "Total Success": lambda x: format_compact_decimal(int(x)),
-                        "Success %": "{:.0f} %"}),use_container_width=False)
+                        "Success %": "{:.0f} %"
+                    }),
+                    use_container_width=True   # ✅ safer
+                )
             else:
                 st.dataframe(
-                    summary.style.format({
+                    summary_display.style.format({
                         "Total Phone Numbers": lambda x: format_indian_number(int(x)),
                         "Total Success": lambda x: format_indian_number(int(x)),
-                        "Success %": "{:.0f} %"}),use_container_width=False)  
+                        "Success %": "{:.0f} %"
+                    }),
+                    use_container_width=True
+                )
         else:
             st.info("📌 Not enough data to display summary or metrics.")
 
