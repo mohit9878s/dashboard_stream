@@ -164,17 +164,21 @@ st.markdown("""
 
 def safe_dataframe(df, key=None):
     import streamlit as st, time
-    import pandas as pd
     from pandas.io.formats.style import Styler
 
-    # Agar Styler aaya to uska data check karo
+    # Agar Styler mila to uska base DataFrame nikaal lo
     if isinstance(df, Styler):
         base_df = df.data
     else:
         base_df = df
 
     if base_df is not None and not base_df.empty:
-        st.dataframe(df, use_container_width=True, key=key)
+        if isinstance(df, Styler):
+            # Styler ke liye st.table use karo (safe hai)
+            st.table(df)
+        else:
+            # Normal DataFrame ke liye st.dataframe
+            st.dataframe(df, use_container_width=True, key=key)
     else:
         st.warning("⚠️ No data available. Logging out...")
         st.session_state.access_granted = False
