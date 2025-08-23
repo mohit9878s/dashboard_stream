@@ -6,6 +6,20 @@ from streamlit_autorefresh import st_autorefresh
 from collections import defaultdict
 from datetime import datetime
 
+try:
+    # 🔹 Yahan poora aapka dashboard code chalega
+    # (jitna bada code aapne bheja hai wo sab try ke andar hona chahiye)
+    pass  
+
+except Exception as e:
+    # 🔴 Error aate hi sidha logout aur session reset
+    st.error("⚠️ Error occurred, you have been logged out. Please login again.")
+    st.session_state.access_granted = False
+    st.session_state.access_code = ""
+    st.session_state.allowed_states = []
+    time.sleep(2)
+    st.rerun()
+
 jarvis_png  =   jarvis_logo()
 comment_cols='Comments (by Gaurav Kumar)'
 india_time = datetime.now(pytz.timezone('Asia/Kolkata')).strftime('%Y-%m-%d %H:%M:%S')
