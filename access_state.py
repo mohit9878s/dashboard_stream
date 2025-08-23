@@ -1,30 +1,13 @@
 
-
-
 import streamlit as st, pandas as pd, plotly.express as px, pytz, time,base64
 from logo import  dashboard_logo, jarvis_logo
 from streamlit_autorefresh import st_autorefresh
-from datetime import datetime
 from collections import defaultdict
+from datetime import datetime
 
 jarvis_png  =   jarvis_logo()
 comment_cols='Comments (by Gaurav Kumar)'
 india_time = datetime.now(pytz.timezone('Asia/Kolkata')).strftime('%Y-%m-%d %H:%M:%S')
-
-try:
-    # 🔹 Yahan poora aapka dashboard code chalega
-    # (jitna bada code aapne bheja hai wo sab try ke andar hona chahiye)
-    pass  
-
-except Exception as e:
-    # 🔴 Error aate hi sidha logout aur session reset
-    st.error("⚠️ Error occurred, you have been logged out. Please login again.")
-    st.session_state.access_granted = False
-    st.session_state.access_code = ""
-    st.session_state.allowed_states = []
-    time.sleep(2)
-    st.rerun()
-
 
 #### ------------ google sheet read function
 @st.cache_data(ttl=60)
@@ -162,32 +145,6 @@ st.markdown("""
         }
     </style>
 """, unsafe_allow_html=True)
-
-def safe_dataframe(df, key=None):
-    import streamlit as st, time
-    from pandas.io.formats.style import Styler
-
-    # Agar Styler mila to uska base DataFrame nikaal lo
-    if isinstance(df, Styler):
-        base_df = df.data
-    else:
-        base_df = df
-
-    if base_df is not None and not base_df.empty:
-        if isinstance(df, Styler):
-            # Styler ke liye st.table use karo (safe hai)
-            st.table(df)
-        else:
-            # Normal DataFrame ke liye st.dataframe
-            st.dataframe(df, use_container_width=True, key=key)
-    else:
-        st.warning("⚠️ No data available. Logging out...")
-        st.session_state.access_granted = False
-        st.session_state.access_code = ""
-        st.session_state.allowed_states = []
-        time.sleep(1)
-        st.rerun()
-
 
 st.markdown(f"""
     <div style='margin-top: 1rem; display: flex; align-items: center; justify-content: space-between; padding: 0.1px 40px;'>
@@ -502,11 +459,6 @@ if not filtered_df.empty:
         # Merge with summary
         summary = pd.merge(summary, comm_type_map, on="Vendor", how="left")
         
-        # Reorder columns: Vendor, Type of Communication(s), then rest
-        cols = summary.columns.tolist()
-        if "Type of Communication(s)" in cols:
-            cols.insert(1, cols.pop(cols.index("Type of Communication(s)")))
-            summary = summary[cols]
 
 ######---- Summary Table Add columns Success (%) and comment ------------------
 ######---- Summary Table Add columns Success (%) and comment ------------------
@@ -526,6 +478,7 @@ if not filtered_df.empty:
     if "Type of Communication(s)" in cols:
         cols.insert(1, cols.pop(cols.index("Type of Communication(s)")))
         summary = summary[cols]
+
 
 
 
@@ -660,7 +613,8 @@ if not filtered_df.empty:
         y="Success_numeric",            # numeric heights (0..100)
         text="Success_display",         # text shown inside bars
         color="Success_numeric",        # color keyed to numeric value -> continuous shades
-        color_continuous_scale=["#fff2e1", "#fd6a30"],  # light -> dark blue (change if needed)     ["#ffe8e1", "#e87d71"]
+        color_continuous_scale=["#fff2e1", "#fd6a30"],  # light -> orsnged (change if needed)
+#        color_continuous_scale=["#ffe8e1", "#e87d71"], # light -> red (change if needed)
         range_color=[100, 10],           # force range so shades are distinct
         custom_data=custom_data_fields
     )
@@ -714,55 +668,34 @@ if not filtered_df.empty:
     # ---------- TAB 1: Summary Table ----------
     with tab1:
         # st.markdown("##### 📋 Summary Table")
-        
-        # if not summary.empty:
-        #     summary["Total Phone Numbers"] = pd.to_numeric(summary["Total Phone Numbers"], errors='coerce')
-        #     summary["Total Success"] = pd.to_numeric(summary["Total Success"], errors='coerce')
-        #     summary["Success %"] = pd.to_numeric(summary["Success %"], errors='coerce')
-        #     summary.index = range(1, len(summary) + 1)
-            
-        #     if compact_style == "compact":
-        #         st.dataframe(
-        #             summary.style.format({
-        #                 "Total Phone Numbers": lambda x: format_compact_decimal(int(x)),
-        #                 "Total Success": lambda x: format_compact_decimal(int(x)),
-        #                 "Success %": "{:.0f} %"}),use_container_width=False)
-        #     else:
-        #         st.dataframe(
-        #             summary.style.format({
-        #                 "Total Phone Numbers": lambda x: format_indian_number(int(x)),
-        #                 "Total Success": lambda x: format_indian_number(int(x)),
-        #                 "Success %": "{:.0f} %"}),use_container_width=False)  
-        # else:
-        #     st.info("📌 Not enough data to display summary or metrics.")
-
+                
         if not summary.empty:
             # clean numeric columns
             summary["Total Phone Numbers"] = pd.to_numeric(summary["Total Phone Numbers"], errors='coerce')
             summary["Total Success"] = pd.to_numeric(summary["Total Success"], errors='coerce')
             summary["Success %"] = pd.to_numeric(summary["Success %"], errors='coerce')
-
+        
             # reset index safely
             summary_display = summary.copy().reset_index(drop=True)
-
+        
             # compact vs normal style
             if compact_style == "compact":
-                safe_dataframe(
+                st.dataframe(
                     summary_display.style.format({
                         "Total Phone Numbers": lambda x: format_compact_decimal(int(x)),
                         "Total Success": lambda x: format_compact_decimal(int(x)),
                         "Success %": "{:.0f} %"
                     }),
-                     key="summary_table"   # ✅ safer
+                    use_container_width=True   # ✅ safer
                 )
             else:
-                safe_dataframe(
+                st.dataframe(
                     summary_display.style.format({
                         "Total Phone Numbers": lambda x: format_indian_number(int(x)),
                         "Total Success": lambda x: format_indian_number(int(x)),
                         "Success %": "{:.0f} %"
                     }),
-                     key="summary_table"
+                    use_container_width=True
                 )
         else:
             st.info("📌 Not enough data to display summary or metrics.")
