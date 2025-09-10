@@ -1,6 +1,6 @@
 
 import streamlit as st, pandas as pd, plotly.express as px, pytz, time,base64
-from logo import  dashboard_logo, jarvis_logo, map_logo
+from main_logo import  dashboard_logo, jarvis_logo, map_logo
 from main_number_format import format_indian_number, format_compact_decimal
 from streamlit_autorefresh import st_autorefresh
 from collections import defaultdict
@@ -835,6 +835,7 @@ st_autorefresh(interval=3600000, key="auto_logout_refresh")
 try:st.markdown(f"""<div style="{format(bg1='#e6ffea', bg2="#3697b2", border="#80C99F")}">  </div> """, unsafe_allow_html=True)
 except:pass
 ##-- chose colour for desing --
+
 
 
 
