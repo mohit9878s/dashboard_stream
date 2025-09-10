@@ -7,7 +7,7 @@ from collections import defaultdict
 from datetime import datetime
 
 
-jarvis_png = jarvis_logo()
+jarvis_png  = jarvis_logo()
 bihar_map = map_logo()
 
 comment_cols='Comments (by Gaurav Kumar)'
@@ -28,9 +28,9 @@ def load_data(sheet_url):
 
 def csv_read_drive(csv_file_url: str):
     try:
-        url=f"https://drive.google.com/uc?id={csv_file_url}"
-        df = pd.read_csv(url, on_bad_lines="skip")
-        # df = pd.read_csv(csv_file_url)
+        # url=f"https://drive.google.com/uc?id={csv_file_url}"
+        # df = pd.read_csv(url, on_bad_lines="skip")
+        df = pd.read_csv(csv_file_url)
         df.columns=df.columns.str.strip()
         return df
     except Exception as e:
@@ -43,7 +43,6 @@ def get_comment(success_pct, vendor, comm_type, remark_df):
     vendor = vendor.strip().lower()
     comm_type = comm_type.strip().lower()
     pct = round(success_pct)
-
     # Filter for matching communication type
     df = remark_df[  remark_df["Type of Communication"].str.strip().str.lower() == comm_type  ]
 
@@ -76,8 +75,8 @@ def get_comment(success_pct, vendor, comm_type, remark_df):
 
 # dashboard_data      = "https://docs.google.com/spreadsheets/d/1PAmuXQHqkVE5r0OjMwyvlxDS-O4e8CzBo8auI4uVYCA/edit#gid=1379708796"
 comment_remark      = "https://docs.google.com/spreadsheets/d/1PAmuXQHqkVE5r0OjMwyvlxDS-O4e8CzBo8auI4uVYCA/edit#gid=1826238917"
-dashboard_data      = "1qON87wYekQB6WVHnSlvpYeKh1kN1g7NH"
-# dashboard_data      = "Bihar_LSE_2024.csv"
+# dashboard_data      = "1qON87wYekQB6WVHnSlvpYeKh1kN1g7NH"
+dashboard_data      = "Bihar_LSE_2024.csv"
 
 ### dashboard_data_columns=['State', 'Type of Communication', 'Vendor', 'Election Type', 'Cohort', 'Total Phone Numbers', 'Total Success']
 # df = load_data(dashboard_data)
@@ -99,26 +98,13 @@ if remark_df is None:
 
 
 ######## ------------------ Header Desingn -----------------------------
-## Page Config
-st.set_page_config(page_title="Communication Dashboard", layout="wide", initial_sidebar_state='auto')
-## Reduce top blank space using custom CSS
-st.markdown("""
-    <style>
-        .block-container {
-            padding-top: 1rem !important;
-        }
-    </style>
-""", unsafe_allow_html=True)
-
-######## ------------------ Header Desingn -----------------------------
 st.set_page_config(page_title="Communication Dashboard", layout="wide", initial_sidebar_state='auto')
 st.markdown("""
     <style>.block-container {padding-top: 1rem !important;}</style>
 """, unsafe_allow_html=True)
 
-##-- headr.html file --- 
 # with open("header.html", "r") as f:
-#    html_content = f.read()
+#     html_content = f.read()
 # html_content = html_content.replace("{{ jarvis_png }}", jarvis_png)
 # html_content = html_content.replace("{{ bihar_map }}", bihar_map)
 # st.markdown(html_content, unsafe_allow_html=True)
@@ -160,8 +146,31 @@ st.markdown(f"""
 #     </div>
 # """, unsafe_allow_html=True)
 
-######## ------------------ Header Desingn -----------------------------
 
+
+
+
+###############-----------------------------#####################------------------------##########
+
+# st.markdown(f"""
+# <style>
+# .modal{{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);display:none;align-items:center;justify-content:center;z-index:9999;}}
+# .modal:target{{display:flex;}}
+# .modal-content{{max-width:80%;max-height:80%;border-radius:10px;box-shadow:0 0 20px black;}}
+# .close{{position:absolute;top:20px;right:35px;color:white;font-size:40px;font-weight:bold;text-decoration:none;}}
+# .thumbnail{{cursor:pointer;transition:0.3s;}}
+# .thumbnail:hover{{transform:scale(1.1);}}
+# </style>
+# <div style='margin-top:1rem;display:flex;align-items:center;justify-content:space-between;padding:0.1px 10px;'>
+# <div><a href="#img1"><img src='data:image/webp;base64,{jarvis_png}' width='55' class='thumbnail'/></a></div>
+# <div style='text-align:center;flex-grow:1;'>
+# <span style='font-size:30px;font-weight:bold;background:linear-gradient(90deg,#ff9900,#ff6600);-webkit-background-clip:text;color:transparent;text-shadow:0 0 0 rgba(255,102,0,0.1);'>Bihar Communication Dashboard</span>
+# </div>
+# <div><a href="#img2"><img src='data:image/webp;base64,{bihar_map}' width='70' class='thumbnail'/></a></div>
+# </div>
+# <div id="img1" class="modal"><a href="#" class="close">&times;</a><img class="modal-content" src='data:image/webp;base64,{jarvis_png}'/></div>
+# <div id="img2" class="modal"><a href="#" class="close">&times;</a><img class="modal-content" src='data:image/webp;base64,{bihar_map}'/></div>
+# """, unsafe_allow_html=True)
 
 ######## ------------------ Page Line line Desingn -----------------------------
 st.markdown(
@@ -176,7 +185,10 @@ st.markdown(
     """,
     unsafe_allow_html=True)
 ######## ------------------ Page Line line Desingn -----------------------------
-######## ------------------ Page Line line Desingn -----------------------------
+
+
+######## ------------------ Header Desingn -----------------------------
+
 
 
 required_columns = ['State','District','PC No. & Name', 'AC No. & Name', 'Booth No.',
@@ -195,8 +207,8 @@ with st.sidebar:
 
 # Sidebar - Communication Filter
 with st.sidebar:
-    group_by = st.selectbox("📂 Analyze Data By", ["Vendor","Cohort","District","PC No. & Name", "AC No. & Name", "Booth No.",
-                                                    "Type of Campaign" ,"Gender","Age"])
+    group_by = st.selectbox("📂 Analyze Data By", ["Vendor", "District","PC No. & Name", "AC No. & Name", "Booth No.",
+                                                    "Election Type","Cohort", "Gender","Age", "Type of Campaign"])
     show_remarks = st.toggle("Show Vendor-wise Remarks", value=False)
 
 ####--- 1 --- Sidebar - filters options -----
@@ -835,9 +847,3 @@ st_autorefresh(interval=3600000, key="auto_logout_refresh")
 try:st.markdown(f"""<div style="{format(bg1='#e6ffea', bg2="#3697b2", border="#80C99F")}">  </div> """, unsafe_allow_html=True)
 except:pass
 ##-- chose colour for desing --
-
-
-
-
-
-
