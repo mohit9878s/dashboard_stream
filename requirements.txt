@@ -4,4 +4,3 @@ plotly
 openpyxl
 streamlit-autorefresh
 pytz
-main_logo
