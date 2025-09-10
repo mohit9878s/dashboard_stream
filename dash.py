@@ -1,13 +1,15 @@
 
 import streamlit as st, pandas as pd, plotly.express as px, pytz, time,base64
-from logo import  dashboard_logo, jarvis_logo
+from main_logo import  dashboard_logo, jarvis_logo, map_logo
 from main_number_format import format_indian_number, format_compact_decimal
 from streamlit_autorefresh import st_autorefresh
 from collections import defaultdict
 from datetime import datetime
 
 
-jarvis_png  =   jarvis_logo()
+jarvis_png = jarvis_logo()
+bihar_map = map_logo()
+
 comment_cols='Comments (by Gaurav Kumar)'
 india_time = datetime.now(pytz.timezone('Asia/Kolkata')).strftime('%Y-%m-%d %H:%M:%S')
 
@@ -122,6 +124,7 @@ st.markdown(f"""
         <div></div>
     </div>
 """, unsafe_allow_html=True)
+
 ######## ------------------ Header Desingn -----------------------------
 
 ######## ------------------ Page Line line Desingn -----------------------------
@@ -796,4 +799,5 @@ st_autorefresh(interval=3600000, key="auto_logout_refresh")
 try:st.markdown(f"""<div style="{format(bg1='#e6ffea', bg2="#3697b2", border="#80C99F")}">  </div> """, unsafe_allow_html=True)
 except:pass
 ##-- chose colour for desing --
+
 
