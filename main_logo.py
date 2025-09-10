@@ -6,14 +6,14 @@ def logo(img_path):
 ##-----------------------------------------------------------##
 
 def jarvis_logo():
-    img_path = r"dashboard_stream/img_logo/jarvis_Logo_1.png"
+    img_path = r"img_logo/jarvis_Logo_1.png"
     image = logo(img_path)
     return image
 if __name__ == "__main__":
     print(jarvis_logo())      # Optional testing
 
 def dashboard_logo():
-    img_path = r"dashboard_stream/img_logo/dash_logo_1.png"
+    img_path = r"img_logo/dash_logo_1.png"
     image = logo(img_path)
     return image
 if __name__ == "__main__":
@@ -21,7 +21,7 @@ if __name__ == "__main__":
 
 
 def map_logo():
-    img_path = r"dashboard_stream/img_logo/bihar_map.png"    
+    img_path = r"img_logo/bihar_map.png"    
     image = logo(img_path)
     return image
 if __name__ == "__main__":
