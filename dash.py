@@ -1,6 +1,6 @@
 
 import streamlit as st, pandas as pd, plotly.express as px, pytz, time,base64
-from main_logo import  dashboard_logo, jarvis_logo, map_logo
+from logo import  dashboard_logo, jarvis_logo, map_logo
 from main_number_format import format_indian_number, format_compact_decimal
 from streamlit_autorefresh import st_autorefresh
 from collections import defaultdict
@@ -110,22 +110,37 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-st.markdown(f"""
-    <div style='margin-top: 1rem; display: flex; align-items: center; justify-content: space-between; padding: 0.1px 40px;'>
-        <div><img src='data:image/webp;base64,{jarvis_png}' width='55'/></div>
-        <div style='text-align: center; flex-grow: 1;'>
-            <span style='font-size: 30px; font-weight: bold;
-                background: linear-gradient(90deg, #ff9900, #ff6600);
-                -webkit-background-clip: text; color: transparent;
-                text-shadow: 0 0 0 rgba(255,102,0,0.1);'>
-                Bihar Communication Dashboard
-            </span>
-        </div>
-        <div></div>
-    </div>
+######## ------------------ Header Desingn -----------------------------
+st.set_page_config(page_title="Communication Dashboard", layout="wide", initial_sidebar_state='auto')
+st.markdown("""
+    <style>.block-container {padding-top: 1rem !important;}</style>
 """, unsafe_allow_html=True)
 
+##-- headr.html file --- 
+with open("header.html", "r") as f:
+    html_content = f.read()
+html_content = html_content.replace("{{ jarvis_png }}", jarvis_png)
+html_content = html_content.replace("{{ bihar_map }}", bihar_map)
+st.markdown(html_content, unsafe_allow_html=True)
+
+
+# st.markdown(f"""
+#     <div style='margin-top: 1rem; display: flex; align-items: center; justify-content: space-between; padding: 0.1px 40px;'>
+#         <div><img src='data:image/webp;base64,{jarvis_png}' width='55'/></div>
+#         <div style='text-align: center; flex-grow: 1;'>
+#             <span style='font-size: 30px; font-weight: bold;
+#                 background: linear-gradient(90deg, #ff9900, #ff6600);
+#                 -webkit-background-clip: text; color: transparent;
+#                 text-shadow: 0 0 0 rgba(255,102,0,0.1);'>
+#                 Bihar Communication Dashboard
+#             </span>
+#         </div>
+#         <div></div>
+#     </div>
+# """, unsafe_allow_html=True)
+
 ######## ------------------ Header Desingn -----------------------------
+
 
 ######## ------------------ Page Line line Desingn -----------------------------
 st.markdown(
@@ -799,5 +814,6 @@ st_autorefresh(interval=3600000, key="auto_logout_refresh")
 try:st.markdown(f"""<div style="{format(bg1='#e6ffea', bg2="#3697b2", border="#80C99F")}">  </div> """, unsafe_allow_html=True)
 except:pass
 ##-- chose colour for desing --
+
 
 
