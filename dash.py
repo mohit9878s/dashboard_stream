@@ -156,8 +156,8 @@ with st.sidebar:
 
 # Sidebar - Communication Filter
 with st.sidebar:
-    group_by = st.selectbox("📂 Analyze Data By", ["Vendor", "District","PC No. & Name", "AC No. & Name", "Booth No.",
-                                                    "Election Type","Cohort", "Gender","Age", "Type of Campaign"])
+    group_by = st.selectbox("📂 Analyze Data By", ["Vendor","Cohort","District","PC No. & Name", "AC No. & Name", "Booth No.",
+                                                    "Type of Campaign" ,"Gender","Age"])
     show_remarks = st.toggle("Show Vendor-wise Remarks", value=False)
 
 ####--- 1 --- Sidebar - filters options -----
@@ -796,3 +796,4 @@ st_autorefresh(interval=3600000, key="auto_logout_refresh")
 try:st.markdown(f"""<div style="{format(bg1='#e6ffea', bg2="#3697b2", border="#80C99F")}">  </div> """, unsafe_allow_html=True)
 except:pass
 ##-- chose colour for desing --
+
