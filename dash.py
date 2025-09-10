@@ -117,12 +117,33 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 ##-- headr.html file --- 
-with open("header.html", "r") as f:
-    html_content = f.read()
-html_content = html_content.replace("{{ jarvis_png }}", jarvis_png)
-html_content = html_content.replace("{{ bihar_map }}", bihar_map)
-st.markdown(html_content, unsafe_allow_html=True)
+# with open("header.html", "r") as f:
+#    html_content = f.read()
+# html_content = html_content.replace("{{ jarvis_png }}", jarvis_png)
+# html_content = html_content.replace("{{ bihar_map }}", bihar_map)
+# st.markdown(html_content, unsafe_allow_html=True)
 
+st.markdown(f"""
+<div style='margin-top: 1.5rem; display: flex; align-items: center; justify-content: space-between; padding: 0.9px 10px;'>
+    <!-- Left Image -->
+    <div>
+        <img src='data:image/webp;base64,{jarvis_png}' width='55'/>
+    </div>
+    <!-- Title -->
+    <div style='text-align: center; flex-grow: 1;'>
+        <span style='font-size: 30px; font-weight: bold;
+            background: linear-gradient(90deg, #ff9900, #ff6600);
+            -webkit-background-clip: text; color: transparent;
+            text-shadow: 0 0 0 rgba(255,102,0,0.1);'>
+            Bihar Communication Dashboard
+        </span>
+    </div>
+    <!-- Right Image -->
+    <div>
+        <img src='data:image/webp;base64,{bihar_map}' width='80'/>
+    </div>
+</div>
+""", unsafe_allow_html=True)
 
 # st.markdown(f"""
 #     <div style='margin-top: 1rem; display: flex; align-items: center; justify-content: space-between; padding: 0.1px 40px;'>
@@ -814,6 +835,7 @@ st_autorefresh(interval=3600000, key="auto_logout_refresh")
 try:st.markdown(f"""<div style="{format(bg1='#e6ffea', bg2="#3697b2", border="#80C99F")}">  </div> """, unsafe_allow_html=True)
 except:pass
 ##-- chose colour for desing --
+
 
 
 
