@@ -544,44 +544,7 @@ if not filtered_df.empty:
         height=450,
         showlegend=True
     )
-    # st.plotly_chart(fig, use_container_width=True)
-
-
-    fig_pie = px.pie(
-        chart_data,
-        names=group_by,
-        values="Success_numeric",
-        hole=0.4,
-        color_discrete_sequence=px.colors.sequential.Oranges
-    )
-    fig_pie.update_traces(
-        textinfo="percent+label",
-        hovertemplate=(
-            f"{group_by}: %{{label}}<br>"
-            "Success(%): %{value:.0f}<br>"
-            "<extra></extra>"
-        )
-    )
-    fig_pie.update_layout(
-        title={
-            "text": f"<span style='color:#387fc1;'><b>{group_by} </b></span>"
-                    "<span style='font-weight:normal;'> - wise Success % Pie</span>",
-            "y": 0.99, "x": 0.05, "xanchor": "left", "yanchor": "top"
-        },
-        title_font=dict(size=24),
-        margin=dict(t=50, b=60),
-        height=450
-    )
-
-    # Tabs
-    tab1, tab2 = st.tabs(["📊 Bar Chart", "🥧 Pie Chart"])
-
-    with tab1:
-        st.plotly_chart(fig, use_container_width=True)
-
-    with tab2:
-        st.plotly_chart(fig_pie, use_container_width=True)
-
+    st.plotly_chart(fig, use_container_width=True)
 
 
 ##$$$$$$$ -- perfect work--- Show Remarks Vendors only ---- sidebar vendors filter mode  ---
@@ -735,3 +698,4 @@ st_autorefresh(interval=3600000, key="auto_logout_refresh")
 try:st.markdown(f"""<div style="{format(bg1='#e6ffea', bg2="#3697b2", border="#80C99F")}">  </div> """, unsafe_allow_html=True)
 except:pass
 ##--Roungh chose colour for desing --
+
