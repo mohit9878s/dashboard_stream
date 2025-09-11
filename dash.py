@@ -447,7 +447,7 @@ if not filtered_df.empty:
     if selected_booths:
         filtered_df.append(
             f'{badge("Booth no. :", "#d9f6fc", "#4d86f0")} '
-            f'<span style="font-weight:450;"> &nbsp;&nbsp; {"&nbsp;,&nbsp;,&nbsp;&nbsp;".join(map(str, selected_booths))}</span>'
+            f'<span style="font-weight:450;"> &nbsp;&nbsp; {"&nbsp;,&nbsp;&nbsp;&nbsp;".join(map(str, selected_booths))}</span>'
         )
     if selected_genders:
         filtered_df.append(
@@ -695,4 +695,5 @@ st_autorefresh(interval=3600000, key="auto_logout_refresh")
 try:st.markdown(f"""<div style="{format(bg1='#e6ffea', bg2="#3697b2", border="#80C99F")}">  </div> """, unsafe_allow_html=True)
 except:pass
 ##--Roungh chose colour for desing --
+
 
