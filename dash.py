@@ -1,5 +1,4 @@
 
-
 import streamlit as st, pandas as pd, plotly.express as px, pytz, time,base64
 from main_logo import  dashboard_logo, jarvis_logo, map_logo
 from main_number_format import format_indian_number, format_compact_decimal
@@ -133,8 +132,8 @@ with st.sidebar:
 ###----- Sidebar - Communication Filter pills mode ------
 
 ###----- Sidebar - st.selectbox - Gropupby Dropdown lsit ------
-groupby_list =["Vendor","Cohort","District","PC No. & Name", "AC No. & Name", "Booth No.", "Type of Campaign",
-                "Gender","Age"]
+groupby_list =["Vendor","Cohort","District","PC No. & Name", "AC No. & Name", "Booth No.", "Type of Campaign","Gender","Age"]
+not_use_list=["State","Election Type"]
 with st.sidebar:
     group_by = st.selectbox("📂 Analyze Data By",groupby_list)
 ###----- Sidebar - st.selectbox - Gropupby Dropdown lsit ------
@@ -504,7 +503,7 @@ if not filtered_df.empty:
     #                                                             chart_data.get("Type of Communication(s)_y", "-"))
 
     # custom data for hover (keep same order as hovertemplate indices)
-    custom_data_fields = ["Total Data (Compact)", "Total Success (Compact)", "Type of Communication(s)"]
+    custom_data_fields = ["Total Data (Compact)", "Total Success (Compact)","Success %",group_by,"Type of Communication(s)"]
     fig = px.bar(
         chart_data,
         x=group_by,
@@ -517,9 +516,11 @@ if not filtered_df.empty:
     )
     fig.update_coloraxes(showscale=False)
     hovertemplate = (
-        "Comm.Type: %{customdata[2]}<br>"
+        "Comm.Type: %{customdata[4]}<br>"
         "Total Data: %{customdata[0]}<br>"
         "Total Success: %{customdata[1]}<br>"
+        "Success(%): %{customdata[2]}<br>"
+        f"{group_by}: %{{customdata[3]}}<br>"
         "<extra></extra>"
     )
     fig.update_traces(
@@ -543,7 +544,45 @@ if not filtered_df.empty:
         height=450,
         showlegend=True
     )
-    st.plotly_chart(fig, use_container_width=True)
+    # st.plotly_chart(fig, use_container_width=True)
+
+
+    fig_pie = px.pie(
+        chart_data,
+        names=group_by,
+        values="Success_numeric",
+        hole=0.4,
+        color_discrete_sequence=px.colors.sequential.Oranges
+    )
+    fig_pie.update_traces(
+        textinfo="percent+label",
+        hovertemplate=(
+            f"{group_by}: %{{label}}<br>"
+            "Success(%): %{value:.0f}<br>"
+            "<extra></extra>"
+        )
+    )
+    fig_pie.update_layout(
+        title={
+            "text": f"<span style='color:#387fc1;'><b>{group_by} </b></span>"
+                    "<span style='font-weight:normal;'> - wise Success % Pie</span>",
+            "y": 0.99, "x": 0.05, "xanchor": "left", "yanchor": "top"
+        },
+        title_font=dict(size=24),
+        margin=dict(t=50, b=60),
+        height=450
+    )
+
+    # Tabs
+    tab1, tab2 = st.tabs(["📊 Bar Chart", "🥧 Pie Chart"])
+
+    with tab1:
+        st.plotly_chart(fig, use_container_width=True)
+
+    with tab2:
+        st.plotly_chart(fig_pie, use_container_width=True)
+
+
 
 ##$$$$$$$ -- perfect work--- Show Remarks Vendors only ---- sidebar vendors filter mode  ---
 ##$$$$$$$ -- perfect work--- Show Remarks Vendors only ---- sidebar vendors filter mode  ---
@@ -696,7 +735,3 @@ st_autorefresh(interval=3600000, key="auto_logout_refresh")
 try:st.markdown(f"""<div style="{format(bg1='#e6ffea', bg2="#3697b2", border="#80C99F")}">  </div> """, unsafe_allow_html=True)
 except:pass
 ##--Roungh chose colour for desing --
-
-
-
-
