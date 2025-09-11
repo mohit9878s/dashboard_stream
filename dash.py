@@ -132,7 +132,7 @@ with st.sidebar:
 ###----- Sidebar - Communication Filter pills mode ------
 
 ###----- Sidebar - st.selectbox - Gropupby Dropdown lsit ------
-groupby_list =["Vendor","Cohort","District","PC No. & Name", "AC No. & Name", "Booth No.", "Type of Campaign","Election Type",
+groupby_list =["Vendor","Cohort","District","PC No. & Name", "AC No. & Name", "Booth No.", "Type of Campaign",
                 "Gender","Age"]
 with st.sidebar:
     group_by = st.selectbox("📂 Analyze Data By",groupby_list)
@@ -695,3 +695,4 @@ st_autorefresh(interval=3600000, key="auto_logout_refresh")
 try:st.markdown(f"""<div style="{format(bg1='#e6ffea', bg2="#3697b2", border="#80C99F")}">  </div> """, unsafe_allow_html=True)
 except:pass
 ##--Roungh chose colour for desing --
+
