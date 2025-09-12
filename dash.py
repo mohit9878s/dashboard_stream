@@ -571,7 +571,7 @@ if not filtered_df.empty:
             ]]
     )
     fig_treemap.update_traces(
-        texttemplate="<b>%{label}</b><br>%{value:.0f}",
+        texttemplate="<b>%{label}</b><br>%{value:.0f}%",
         textposition="middle center",
         hovertemplate=(
             "Comm.Type: <b>%{customdata[0]}</b><br>"
@@ -759,3 +759,4 @@ st_autorefresh(interval=3600000, key="auto_logout_refresh")
 try:st.markdown(f"""<div style="{format(bg1='#e6ffea', bg2="#3697b2", border="#80C99F")}">  </div> """, unsafe_allow_html=True)
 except:pass
 ##--Roungh chose colour for desing --
+
