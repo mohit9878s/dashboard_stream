@@ -71,7 +71,7 @@ def get_comment(success_pct, vendor, comm_type, remark_df):
 
 ###### ----- data read ------------- Google Sheet  ------------
 comment_remark      = "https://docs.google.com/spreadsheets/d/1PAmuXQHqkVE5r0OjMwyvlxDS-O4e8CzBo8auI4uVYCA/edit#gid=1826238917"
-# dashboard_data      = "1qON87wYekQB6WVHnSlvpYeKh1kN1g7NH"
+dashboard_data      = "1qON87wYekQB6WVHnSlvpYeKh1kN1g7NH"
 
 dashboard_data      = "Bihar_LSE_2024.csv"
 
@@ -750,3 +750,4 @@ st_autorefresh(interval=3600000, key="auto_logout_refresh")
 try:st.markdown(f"""<div style="{format(bg1='#e6ffea', bg2="#3697b2", border="#80C99F")}">  </div> """, unsafe_allow_html=True)
 except:pass
 ##--Roungh chose colour for desing --
+
