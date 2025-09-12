@@ -73,7 +73,7 @@ def get_comment(success_pct, vendor, comm_type, remark_df):
 comment_remark      = "https://docs.google.com/spreadsheets/d/1PAmuXQHqkVE5r0OjMwyvlxDS-O4e8CzBo8auI4uVYCA/edit#gid=1826238917"
 dashboard_data      = "1qON87wYekQB6WVHnSlvpYeKh1kN1g7NH"
 
-#dashboard_data      = "Bihar_LSE_2024.csv"
+# dashboard_data      = "Bihar_LSE_2024.csv"
 
 ### dashboard_data_columns=['State', 'Type of Communication', 'Vendor', 'Election Type', 'Cohort', 'Total Phone Numbers', 'Total Success']
 # df = load_data(dashboard_data)
@@ -81,6 +81,7 @@ dashboard_data      = "1qON87wYekQB6WVHnSlvpYeKh1kN1g7NH"
 df=csv_read_drive(dashboard_data)
 try:
     df = df.dropna(subset=['State'])
+    # df['Booth No.'] = df['Booth No.'].astype(str)
 except:
     df
 if df is None:
@@ -134,8 +135,8 @@ with st.sidebar:
 ###----- Sidebar - Communication Filter pills mode ------
 
 ###----- Sidebar - st.selectbox - Gropupby Dropdown lsit ------
-groupby_list =["Vendor","Cohort","District","PC No. & Name", "AC No. & Name", "Booth No.", "Type of Campaign","Gender","Age"]
-not_use_list=["State","Election Type"]
+groupby_list =["Vendor","Cohort","District","PC No. & Name", "AC No. & Name", "Type of Campaign","Gender","Age"]
+not_use_list=["State","Election Type", "Booth No."]
 with st.sidebar:
     group_by = st.selectbox("📂 Analyze Data By",groupby_list)
 ###----- Sidebar - st.selectbox - Gropupby Dropdown lsit ------
@@ -239,7 +240,7 @@ if (
     (st.session_state.dist_filter and not valid_district_defaults) or
     (st.session_state.pc_filter and not valid_pc_defaults) or
     (st.session_state.ac_filter and not valid_ac_defaults) or
-    (st.session_state.booth_filter and not valid_booth_defaults) or
+    # (st.session_state.booth_filter and not valid_booth_defaults) or
     (st.session_state.gender_filter and not valid_gender_defaults) or
     (st.session_state.age_filter and not valid_age_defaults) or
     (st.session_state.campaign_filter and not valid_campaign_defaults)
@@ -250,7 +251,7 @@ if (
 ####----------- Apply Filters Lables - st.multiselect Dropdown list --------------------
 with st.expander("**Apply Filters**",expanded=True,width='stretch',icon="🔽"):
     c0, c8 , c1, c2 = st.columns(4)
-    c3, c4, c7, c5, c6 = st.columns(5)
+    c3, c7, c5, c6 = st.columns(4)
 
     with c0:
         selected_vendors = st.multiselect("🏷️ Vendor", vendor_options, default=st.session_state.vendor_filter, key="vendor_filter")
@@ -264,8 +265,8 @@ with st.expander("**Apply Filters**",expanded=True,width='stretch',icon="🔽"):
     with c3:
         selected_acs = st.multiselect("📌 AC No. & Name", ac_options, default=st.session_state.ac_filter, key="ac_filter")
 
-    with c4:
-        selected_booths = st.multiselect("🏠 Booth No.", booth_options, default=st.session_state.booth_filter, key="booth_filter")
+    # with c4:
+    #     selected_booths = st.multiselect("🏠 Booth No.", booth_options, default=st.session_state.booth_filter, key="booth_filter")
 
     with c5:
         selected_genders = st.multiselect("⚧ Gender", gender_options, default=st.session_state.gender_filter, key="gender_filter")
@@ -296,8 +297,8 @@ if selected_pcs:
     filtered_df = filtered_df[filtered_df["PC No. & Name"].isin(selected_pcs)]
 if selected_acs:
     filtered_df = filtered_df[filtered_df["AC No. & Name"].isin(selected_acs)]
-if selected_booths:
-    filtered_df = filtered_df[filtered_df["Booth No."].isin(selected_booths)]
+# if selected_booths:
+#     filtered_df = filtered_df[filtered_df["Booth No."].isin(selected_booths)]
 if selected_genders:
     filtered_df = filtered_df[filtered_df["Gender"].isin(selected_genders)]
 if selected_ages:
@@ -446,11 +447,11 @@ if not filtered_df.empty:
             f'{badge("AC :", "#fff4e5", "#db8802")} '
             f'<span style="font-weight:450;"> &nbsp;&nbsp; {"&nbsp;,&nbsp;&nbsp;&nbsp;".join(selected_acs)}</span>'
         )
-    if selected_booths:
-        filtered_df.append(
-            f'{badge("Booth no. :", "#d9f6fc", "#4d86f0")} '
-            f'<span style="font-weight:450;"> &nbsp;&nbsp; {"&nbsp;,&nbsp;&nbsp;&nbsp;".join(map(str, selected_booths))}</span>'
-        )
+    # if selected_booths:
+    #     filtered_df.append(
+    #         f'{badge("Booth no. :", "#d9f6fc", "#4d86f0")} '
+    #         f'<span style="font-weight:450;"> &nbsp;&nbsp; {"&nbsp;,&nbsp;&nbsp;&nbsp;".join(map(str, selected_booths))}</span>'
+    #     )
     if selected_genders:
         filtered_df.append(
             f'{badge("Gender :", "#fff4e5", "#d0902a")} '
@@ -533,7 +534,8 @@ if not filtered_df.empty:
     )
     fig.update_layout(
         title={
-            "text": f"<span style='color:#387fc1;'><b>{num_unique_group_by_items}-{group_by} </b></span><span style='font-weight:normal;'> -  wise Success % Chart</span>",
+            "text": f"<span style='color:#387fc1;'><b>{num_unique_group_by_items}-{group_by} </b></span>"
+            "<span style='font-weight:normal;'> -  wise Success % Chart</span>",
             "y": 0.99, "x": 0.05, "xanchor": "left", "yanchor": "top"
         },
         title_font=dict(size=24),
@@ -545,56 +547,63 @@ if not filtered_df.empty:
         height=450,
         showlegend=True
     )
-    st.plotly_chart(fig, use_container_width=True)
-
 
 ### ----------------            Treemap Chart       -----------------------
-    # fig_treemap = px.treemap(
-    #     chart_data,
-    #     path=[group_by],       
-    #     values="Success_numeric",
-    #     color="Success_numeric",
-    #     color_continuous_scale=["#fff2e1", "#fd6a30"],
-    #     custom_data=custom_data_fields
-    # )
-    # fig_treemap = px.treemap(
-    #     chart_data,
-    #     path=[group_by],
-    #     values="Success_numeric",
-    #     color="Success_numeric",
-    #     color_continuous_scale=["#fff2e1", "#fd6a30"],
-    #     custom_data=chart_data[[
-    #         "Total Data (Compact)", 
-    #         "Total Success (Compact)", 
-    #         "Success %", 
-    #         "Type of Communication(s)"]]
-    # )
-    # fig_treemap.update_traces(
-    #     texttemplate="<b>%{label}</b><br>%{value:.0f}%",
-    #     textposition="middle center",
-    #     hovertemplate=(
-    #         "<b style='font-size:14px;'>%{label}</b><br><br>"
-    #         "📊 <b>Total Data:</b> %{customdata[0]}<br>"
-    #         "✅ <b>Total Success:</b> %{customdata[1]}<br>"
-    #         " % <b>Success(%):</b> %{customdata[2]}<br>"
-    #         "📡 <b>Comm.Type:</b> %{customdata[4]}<br>"
-    #         "<extra></extra>"
-    #     )
-    # )
-    # fig_treemap.update_layout(
-    #     title={
-    #         "text": f"<span style='color:#387fc1;'><b>{group_by}</b></span>"
-    #                 "<span style='font-weight:normal;'> - Wise Success % Treemap</span>",
-    #         "y": 0.98, "x": 0.5, "xanchor": "center", "yanchor": "top"
-    #     },
-    #     title_font=dict(size=22, family="Arial Black"),
-    #     margin=dict(t=60, b=30, l=20, r=20),
-    #     height=550,
-    #     paper_bgcolor="white",
-    #     plot_bgcolor="white"
-    # )
+    fig_treemap = px.treemap(
+        chart_data,
+        path=[group_by],       
+        values="Success_numeric",
+        color="Success_numeric",
+        color_continuous_scale=["#fff2e1", "#fd6a30"],
+        custom_data=custom_data_fields
+    )
+    fig_treemap = px.treemap(
+        chart_data,
+        path=[group_by],
+        values="Success_numeric",
+        color="Success_numeric",
+        color_continuous_scale=["#fff2e1", "#fd6a30"],
+        custom_data=chart_data[[
+            "Type of Communication(s)",
+            "Total Data (Compact)", 
+            "Total Success (Compact)", 
+            "Success %", 
+            ]]
+    )
+    fig_treemap.update_traces(
+        texttemplate="<b>%{label}</b><br>%{value:.0f}",
+        textposition="middle center",
+        hovertemplate=(
+            "Comm.Type: <b>%{customdata[0]}</b><br>"
+            "Total Data: <b>%{customdata[1]}</b><br>"
+            "Total Success: <b>%{customdata[2]}</b><br>"
+            "Success(%): <b>%{customdata[3]}</b><br>"
+            "<extra></extra>"
+        )
+    )
+    fig_treemap.update_layout(
+        title={
+            "text": f"<span style='color:#387fc1;'><b>{num_unique_group_by_items}-{group_by} </b></span>"
+            "<span style='font-weight:normal;'> -  wise Success % Chart</span>",
+            "y": 0.99, "x": 0.05, "xanchor": "left", "yanchor": "top"},
+        title_font=dict(size=24),
+        margin=dict(t=60, b=30, l=20, r=20),
+        height=550,
+        paper_bgcolor="white",
+        plot_bgcolor="white"
+    )
+### ----------------            Treemap Chart       -----------------------
+
+    # st.plotly_chart(fig, use_container_width=True)
     # st.plotly_chart(fig_treemap, use_container_width=True)
-### ----------------            Treemap Chart       -----------------------
+
+    tab1, tab2 = st.tabs(["**Bar Chart**", "**Tree Map**"])
+
+    with tab1:
+        st.plotly_chart(fig, use_container_width=True)
+
+    with tab2:
+        st.plotly_chart(fig_treemap, use_container_width=True)
 
 
 
@@ -750,5 +759,3 @@ st_autorefresh(interval=3600000, key="auto_logout_refresh")
 try:st.markdown(f"""<div style="{format(bg1='#e6ffea', bg2="#3697b2", border="#80C99F")}">  </div> """, unsafe_allow_html=True)
 except:pass
 ##--Roungh chose colour for desing --
-
-
