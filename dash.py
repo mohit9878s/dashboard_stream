@@ -26,9 +26,11 @@ def load_data(sheet_url):
 
 def csv_read_drive(csv_file_url: str):
     try:
-        url=f"https://drive.google.com/uc?id={csv_file_url}"
-        df = pd.read_csv(url, on_bad_lines="skip")
-        # df = pd.read_csv(csv_file_url)
+        try:
+            url=f"https://drive.google.com/uc?id={csv_file_url}"
+            df = pd.read_csv(url, on_bad_lines="skip")
+        except:
+            df = pd.read_csv(csv_file_url)
         df.columns=df.columns.str.strip()
         return df
     except Exception as e:
@@ -69,9 +71,9 @@ def get_comment(success_pct, vendor, comm_type, remark_df):
 
 ###### ----- data read ------------- Google Sheet  ------------
 comment_remark      = "https://docs.google.com/spreadsheets/d/1PAmuXQHqkVE5r0OjMwyvlxDS-O4e8CzBo8auI4uVYCA/edit#gid=1826238917"
-dashboard_data      = "1qON87wYekQB6WVHnSlvpYeKh1kN1g7NH"
+# dashboard_data      = "1qON87wYekQB6WVHnSlvpYeKh1kN1g7NH"
 
-# dashboard_data      = "Bihar_LSE_2024.csv"
+dashboard_data      = "Bihar_LSE_2024.csv"
 
 ### dashboard_data_columns=['State', 'Type of Communication', 'Vendor', 'Election Type', 'Cohort', 'Total Phone Numbers', 'Total Success']
 # df = load_data(dashboard_data)
@@ -496,12 +498,6 @@ if not filtered_df.empty:
 
     chart_data["Success_display"] = chart_data["Success_numeric"].apply(lambda x: f"{x:.0f} %")
 
-    # ensure Type of Communication(s) exists for hover (fallback handle)
-    # if "Type of Communication(s)" not in chart_data.columns:
-    #     # try common merged names then fallback to '-'
-    #     chart_data["Type of Communication(s)"] = chart_data.get("Type of Communication(s)_x",
-    #                                                             chart_data.get("Type of Communication(s)_y", "-"))
-
     # custom data for hover (keep same order as hovertemplate indices)
     custom_data_fields = ["Total Data (Compact)", "Total Success (Compact)","Success %",group_by,"Type of Communication(s)"]
     fig = px.bar(
@@ -516,11 +512,16 @@ if not filtered_df.empty:
     )
     fig.update_coloraxes(showscale=False)
     hovertemplate = (
-        "Comm.Type: %{customdata[4]}<br>"
-        "Total Data: %{customdata[0]}<br>"
-        "Total Success: %{customdata[1]}<br>"
-        "Success(%): %{customdata[2]}<br>"
-        f"{group_by}: %{{customdata[3]}}<br>"
+        ## "Comm.Type: %{customdata[4]}<br>"
+        ## "Total Data: %{customdata[0]}<br>"
+        ## "Total Success: %{customdata[1]}<br>"
+        ## "Success(%): %{customdata[2]}<br>"
+        ## f"{group_by}: %{{customdata[3]}}<br>"
+        "<b>Comm.Type:</b> %{customdata[4]}<br>"
+        f"<b>{group_by}:</b> %{{customdata[3]}}<br>"
+        "<b>Total Data:</b> %{customdata[0]}<br>"
+        "<b>Total Success:</b> %{customdata[1]}<br>"
+        "<b>Success(%):</b> %{customdata[2]}<br>"
         "<extra></extra>"
     )
     fig.update_traces(
@@ -545,6 +546,57 @@ if not filtered_df.empty:
         showlegend=True
     )
     st.plotly_chart(fig, use_container_width=True)
+
+
+### ----------------            Treemap Chart       -----------------------
+    # fig_treemap = px.treemap(
+    #     chart_data,
+    #     path=[group_by],       
+    #     values="Success_numeric",
+    #     color="Success_numeric",
+    #     color_continuous_scale=["#fff2e1", "#fd6a30"],
+    #     custom_data=custom_data_fields
+    # )
+    # fig_treemap = px.treemap(
+    #     chart_data,
+    #     path=[group_by],
+    #     values="Success_numeric",
+    #     color="Success_numeric",
+    #     color_continuous_scale=["#fff2e1", "#fd6a30"],
+    #     custom_data=chart_data[[
+    #         "Total Data (Compact)", 
+    #         "Total Success (Compact)", 
+    #         "Success %", 
+    #         "Type of Communication(s)"]]
+    # )
+    # fig_treemap.update_traces(
+    #     texttemplate="<b>%{label}</b><br>%{value:.0f}%",
+    #     textposition="middle center",
+    #     hovertemplate=(
+    #         "<b style='font-size:14px;'>%{label}</b><br><br>"
+    #         "📊 <b>Total Data:</b> %{customdata[0]}<br>"
+    #         "✅ <b>Total Success:</b> %{customdata[1]}<br>"
+    #         " % <b>Success(%):</b> %{customdata[2]}<br>"
+    #         "📡 <b>Comm.Type:</b> %{customdata[4]}<br>"
+    #         "<extra></extra>"
+    #     )
+    # )
+    # fig_treemap.update_layout(
+    #     title={
+    #         "text": f"<span style='color:#387fc1;'><b>{group_by}</b></span>"
+    #                 "<span style='font-weight:normal;'> - Wise Success % Treemap</span>",
+    #         "y": 0.98, "x": 0.5, "xanchor": "center", "yanchor": "top"
+    #     },
+    #     title_font=dict(size=22, family="Arial Black"),
+    #     margin=dict(t=60, b=30, l=20, r=20),
+    #     height=550,
+    #     paper_bgcolor="white",
+    #     plot_bgcolor="white"
+    # )
+    # st.plotly_chart(fig_treemap, use_container_width=True)
+### ----------------            Treemap Chart       -----------------------
+
+
 
 
 ##$$$$$$$ -- perfect work--- Show Remarks Vendors only ---- sidebar vendors filter mode  ---
@@ -698,4 +750,3 @@ st_autorefresh(interval=3600000, key="auto_logout_refresh")
 try:st.markdown(f"""<div style="{format(bg1='#e6ffea', bg2="#3697b2", border="#80C99F")}">  </div> """, unsafe_allow_html=True)
 except:pass
 ##--Roungh chose colour for desing --
-
