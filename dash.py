@@ -500,7 +500,9 @@ if not filtered_df.empty:
     chart_data["Success_display"] = chart_data["Success_numeric"].apply(lambda x: f"{x:.0f} %")
 
     # custom data for hover (keep same order as hovertemplate indices)
-    custom_data_fields = ["Total Data (Compact)", "Total Success (Compact)","Success %",group_by,"Type of Communication(s)"]
+    # custom_data_fields = ["Total Data (Compact)", "Total Success (Compact)","Success %",group_by,"Type of Communication(s)"]
+    custom_data_fields=["Type of Communication(s)","Total Data (Compact)", "Total Success (Compact)","Success %", group_by]
+
     fig = px.bar(
         chart_data,
         x=group_by,
@@ -518,11 +520,12 @@ if not filtered_df.empty:
         ## "Total Success: %{customdata[1]}<br>"
         ## "Success(%): %{customdata[2]}<br>"
         ## f"{group_by}: %{{customdata[3]}}<br>"
-        "<b>Comm.Type:</b> %{customdata[4]}<br>"
-        f"<b>{group_by}:</b> %{{customdata[3]}}<br>"
-        "<b>Total Data:</b> %{customdata[0]}<br>"
-        "<b>Total Success:</b> %{customdata[1]}<br>"
-        "<b>Success(%):</b> %{customdata[2]}<br>"
+        
+        f"{group_by}: <b>%{{customdata[4]}}</b><br>"
+        "Comm.Type: <b>%{customdata[0]}</b><br>"
+        "Total Data: <b>%{customdata[1]}</b><br>"
+        "Total Success: <b>%{customdata[2]}</b><br>"
+        "Success(%): <b>%{customdata[3]}</b><br>"
         "<extra></extra>"
     )
     fig.update_traces(
@@ -759,4 +762,3 @@ st_autorefresh(interval=3600000, key="auto_logout_refresh")
 try:st.markdown(f"""<div style="{format(bg1='#e6ffea', bg2="#3697b2", border="#80C99F")}">  </div> """, unsafe_allow_html=True)
 except:pass
 ##--Roungh chose colour for desing --
-
